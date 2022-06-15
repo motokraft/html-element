@@ -42,15 +42,24 @@ class BaseAttribute
 
     function render()
     {
-        $name = $this->getName();
+        $result = $this->getName();
         $value = $this->getValue();
 
         if(is_null($value))
         {
-            return $name;
+            return $result;
         }
 
-        return sprintf('%s="%s"', $name, $value);
+        if(strpos($value, '"') !== false)
+        {
+            $result .= '=\'' . $value . '\'';
+        }
+        else
+        {
+            $result .= '="' . $value . '"';
+        }
+
+        return $result;
     }
 
     function __toString()
