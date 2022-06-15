@@ -144,13 +144,13 @@ class HtmlHelper
         $attrs = self::getAttributes($element);
 
         if($result instanceof ShortCodeInterface
-            && ($attrs = $attrs->getArray()))
+            && ($data = $attrs->getArray()))
         {
-            $result->loadOptions($attrs);
+            $result->loadOptions($data);
         }
-        else if($attrs = $attrs->getArray())
+        else if($data = $attrs->getArray())
         {
-            $result->loadAttributes($attrs);
+            $result->loadAttributes($data);
         }
 
         foreach($element->childNodes as $child_node)
