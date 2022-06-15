@@ -269,20 +269,19 @@ class HtmlElement
         return $this->parent->removeChild($this);
     }
 
-    function removeChild(HtmlElement $element) : HtmlElement
+    function removeChild(HtmlElement $element) : bool
     {
         if(!$this->hasChildElement($element))
         {
             return false;
         }
 
-        foreach($this->childrens as $key => $child)
+        $key = array_search($element, $this->childrens);
+
+        if($key !== false)
         {
-            if($element === $child)
-            {
-                unset($this->childrens[$key]);
-                return true;
-            }
+            unset($this->childrens[$key]);
+            return true;
         }
 
         return false;
