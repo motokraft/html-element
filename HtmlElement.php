@@ -290,16 +290,45 @@ class HtmlElement
 
     function hasChildElement(HtmlElement $element) : bool
     {
-        $callback = function ($child) use(&$element)
+        return in_array($element, $this->childrens, true);
+    }
+
+    function replace(HtmlElement $newChild) : bool
+    {
+        if(!$this->parent instanceof HtmlElement)
         {
-            return ($element !== $child);
-        };
+            return false;
+        }
 
-        $result = array_filter(
-            $this->childrens, $callback
-        );
+        return $this->parent->replaceChild($newChild, $this);
+    }
 
-        return (empty($result) ? false : true);
+    function replaceChild(HtmlElement $newChild, HtmlElement $oldChild) : bool
+    {
+        if(!$this->hasChildElement($oldChild))
+        {
+            return false;
+        }
+
+        if($this->hasChildElement($newChild))
+        {
+            return false;
+        }
+
+        $key = array_search($oldChild, $this->childrens);
+
+        if($key !== false)
+        {
+            $level = (int) $this->getLevel();
+            $newChild->setLevel(($level + 1));
+
+            $newChild->setParent($this);
+            $this->childrens[$key] = $newChild;
+
+            return true;
+        }
+
+        return false;
     }
 
     function setCommentBefore(string $value) : static
