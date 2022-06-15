@@ -45,7 +45,7 @@ class BaseAttribute
         $name = $this->getName();
         $value = $this->getValue();
 
-        if(!isset($value))
+        if(is_null($value))
         {
             return $name;
         }
