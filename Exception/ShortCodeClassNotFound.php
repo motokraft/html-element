@@ -9,7 +9,7 @@ class ShortCodeClassNotFound extends \Exception
 {
     private $type;
 
-    function __construct(string $type, int $code)
+    function __construct(string $type, int $code = 404)
     {
         $this->type = $type;
 

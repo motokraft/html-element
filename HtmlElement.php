@@ -130,6 +130,18 @@ class HtmlElement
         return $this->beforeHtml($result);
 	}
 
+    function beforeShortCode(ShortCodeInterface $element) : ShortCodeInterface
+    {
+        return $this->beforeHtml($element);
+    }
+
+    function beforeCreateShortCode(string $type,
+        array $options = [], array $attrs = []) : ShortCodeInterface
+    {
+        $result = $this->createClassShortCode($type, $options, $attrs);
+        return $this->beforeShortCode($result);
+    }
+
 	function prepend(string $result, bool $escape = true) : static
 	{
         if($escape)
@@ -155,6 +167,18 @@ class HtmlElement
         $result = new HtmlElement($type, $attrs);
         return $this->prependHtml($result);
 	}
+
+    function prependShortCode(ShortCodeInterface $element) : ShortCodeInterface
+    {
+        return $this->prependHtml($element);
+    }
+
+    function prependCreateShortCode(string $type,
+        array $options = [], array $attrs = []) : ShortCodeInterface
+    {
+        $result = $this->createClassShortCode($type, $options, $attrs);
+        return $this->prependShortCode($result);
+    }
 
 	function html(string $result, bool $escape = true) : static
 	{
@@ -193,6 +217,18 @@ class HtmlElement
         return $this->appendHtml($result);
 	}
 
+    function appendShortCode(ShortCodeInterface $element) : ShortCodeInterface
+    {
+        return $this->appendHtml($element);
+    }
+
+    function appendCreateShortCode(string $type,
+        array $options = [], array $attrs = []) : ShortCodeInterface
+    {
+        $result = $this->createClassShortCode($type, $options, $attrs);
+        return $this->appendShortCode($result);
+    }
+
 	function after(string $result, bool $escape = true) : static
 	{
         if($escape)
@@ -219,44 +255,16 @@ class HtmlElement
         return $this->afterHtml($result);
 	}
 
-    function appendShortCode(ShortCodeInterface $element) : ShortCodeInterface
+    function afterShortCode(ShortCodeInterface $element) : ShortCodeInterface
     {
         return $this->appendHtml($element);
     }
 
-    function appendCreateShortCode(string $type,
+    function afterCreateShortCode(string $type,
         array $options = [], array $attrs = []) : ShortCodeInterface
     {
-        if(!HtmlHelper::hasShortCode($type))
-        {
-            throw new ShortCodeNotFound($type, 404);
-        }
-
-        $class = HtmlHelper::getShortCode($type);
-
-        if(!class_exists($class))
-        {
-            throw new ShortCodeClassNotFound($class, 404);
-        }
-
-        $result = new $class('div', $attrs);
-
-        if(!$result instanceof ShortCodeInterface)
-        {
-            throw new ShortCodeImplement($result, 404);
-        }
-
-        if(!$result instanceof HtmlElement)
-        {
-            throw new ShortCodeExtends($result, 404);
-        }
-
-        if(!empty($options))
-        {
-            $result->loadOptions($options);
-        }
-
-        return $this->appendShortCode($result);
+        $result = $this->createClassShortCode($type, $options, $attrs);
+        return $this->afterHtml($result);
     }
 
     function remove() : bool
@@ -462,5 +470,47 @@ class HtmlElement
     {
         $result = preg_replace('/[\r\n\t]+/', '', $result);
         return preg_replace('/\s+/u', ' ', $result);
+    }
+
+    private function createClassShortCode(string $type,
+        array $options = [], array $attrs = []) : ShortCodeInterface
+    {
+        if(!HtmlHelper::hasShortCode($type))
+        {
+            throw new ShortCodeNotFound($type);
+        }
+
+        $class = HtmlHelper::getShortCode($type);
+
+        if(!class_exists($class))
+        {
+            throw new ShortCodeClassNotFound($class);
+        }
+
+        $tagname = HtmlHelper::SHORTCODE_DEFAULT_TAGNAME;
+
+        if(!empty($options['tagname']))
+        {
+            $tagname = $options['tagname'];
+        }
+
+        $result = new $class($tagname, $attrs);
+
+        if(!$result instanceof ShortCodeInterface)
+        {
+            throw new ShortCodeImplement($result);
+        }
+
+        if(!$result instanceof HtmlElement)
+        {
+            throw new ShortCodeExtends($result);
+        }
+
+        if(!empty($options))
+        {
+            $result->loadOptions($options);
+        }
+
+        return $result;
     }
 }

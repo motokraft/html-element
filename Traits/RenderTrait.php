@@ -14,6 +14,7 @@ trait RenderTrait
         'input' => '<{type}{attrs}>',
         'hr' => '<{type}{attrs}>',
         'img' => '<{type}{attrs}>',
+        'shortcode' => '<{type}{attrs} />',
         '_default' => '<{type}{attrs}>{body}</{type}>'
     ];
 

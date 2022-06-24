@@ -16,7 +16,11 @@ use \Motokraft\HtmlElement\Attributes\ClassAttribute;
 
 class HtmlHelper
 {
-    const REGEX_SHORTCODE = '/{shortcode type="(.*?)"(.*?)}/i';
+    const SHORTCODE_DEFAULT_TAGNAME = 'div';
+
+    const REGEX_SHORTCODE_1 = '/{shortcode(.*)}/i';
+    const REGEX_SHORTCODE_2 = '/{(.*) shortcode="(.*?)"(.*?)}/i';
+    const REGEX_SHORTCODE_3 = '/{(.*) type="shortcode" name="(.*?)"(.*?)}/i';
 
     private static $attributes = [
         'class' => ClassAttribute::class
@@ -89,57 +93,85 @@ class HtmlHelper
         return isset(self::$styles[$name]);
     }
 
-    static function addShortCode(string $type, string $class) : bool
+    static function addShortCode(string $name, string $class) : bool
     {
-        self::$shortcodes[$type] = $class;
+        self::$shortcodes[$name] = $class;
         return true;
     }
 
-    static function getShortCode(string $type) : bool|string
+    static function getShortCode(string $name) : bool|string
     {
-        if(!isset(self::$shortcodes[$type]))
+        if(!self::hasShortCode($name))
         {
             return false;
         }
 
-        return self::$shortcodes[$type];
+        return self::$shortcodes[$name];
     }
 
-    static function removeShortCode(string $type) : bool
+    static function removeShortCode(string $name) : bool
     {
-        if(!self::hasShortCode($type))
+        if(!self::hasShortCode($name))
         {
             return false;
         }
 
-        unset(self::$shortcodes[$type]);
+        unset(self::$shortcodes[$name]);
         return true;
     }
 
-    static function hasShortCode(string $type) : bool
+    static function hasShortCode(string $name) : bool
     {
-        return isset(self::$shortcodes[$type]);
+        return isset(self::$shortcodes[$name]);
     }
 
-    static function loadHTML(string $source, HtmlElement $result)
+    static function loadHTML(string $source, HtmlElement $result, bool $shortcode = true)
     {
+        $source = preg_replace('/[\r\n]+/', '', $source);
+        $source = preg_replace('/\s+/u', ' ', $source);
+        $source = mb_convert_encoding($source, 'HTML-ENTITIES', 'UTF-8');
+
+        if($shortcode)
+        {
+            if(preg_match(self::REGEX_SHORTCODE_1, $source))
+            {
+                $source = preg_replace(
+                    self::REGEX_SHORTCODE_1, '<shortcode$1 />', $source
+                );
+            }
+
+            if(preg_match(self::REGEX_SHORTCODE_2, $source))
+            {
+                $replacement = '<shortcode tagname="$1" type="$2"$3 />';
+
+                $source = preg_replace(
+                    self::REGEX_SHORTCODE_2, $replacement, $source
+                );
+            }
+
+            if(preg_match(self::REGEX_SHORTCODE_3, $source))
+            {
+                $replacement = '<shortcode tagname="$1" type="$2"$3 />';
+
+                $source = preg_replace(
+                    self::REGEX_SHORTCODE_3, $replacement, $source
+                );
+            }
+        }
+
         libxml_use_internal_errors(true);
-
         $dom = new \DOMDocument('1.0', 'UTF-8');
-        $source = preg_replace('/>[\s]+</', '><', $source);
 
-        $dom->loadHTML(mb_convert_encoding(
-            $source, 'HTML-ENTITIES', 'UTF-8'), LIBXML_HTML_NODEFDTD
-        );
+        $dom->loadHTML($source, LIBXML_HTML_NODEFDTD);
 
         $items = $dom->getElementsByTagName('body');
-        self::parseDOMElement($result, $items->item(0));
+        self::parseDOMElement($result, $items->item(0), $shortcode);
 
         return $result;
     }
 
-    protected static function parseDOMElement(
-        HtmlElement $result, \DOMElement $element)
+    private static function parseDOMElement(
+        HtmlElement $result, \DOMElement $element, bool $shortcode = true)
     {
         $attrs = self::getAttributes($element);
 
@@ -157,60 +189,100 @@ class HtmlHelper
         {
             if($child_node instanceof \DOMText)
             {
-                $result->append($child_node->data);
+                $result->append(trim($child_node->data));
             }
             else if($child_node instanceof \DOMElement)
             {
                 $child = self::createChildElement(
-                    $child_node, $result
+                    $child_node, $result, $shortcode
                 );
 
-                self::parseDOMElement($child, $child_node);
+                self::parseDOMElement($child, $child_node, $shortcode);
             }
         }
     }
 
-    protected static function createChildElement(
-        \DOMElement $child, HtmlElement $html)
+    private static function createChildElement(
+        \DOMElement $child, HtmlElement $html, bool $shortcode) : HtmlElement
     {
-        if($child->tagName !== 'shortcode')
+        if($shortcode)
         {
-            return $html->appendCreateHtml($child->tagName);
+            if($child->tagName === 'shortcode')
+            {
+                if(!$type = $child->getAttribute('type'))
+                {
+                    throw new AttributeTypeNotFound($child);
+                }
+
+                if(!$tagname = $child->getAttribute('tagname'))
+                {
+                    $tagname = self::SHORTCODE_DEFAULT_TAGNAME;
+                }
+
+                $child->removeAttribute('type');
+                $child->removeAttribute('tagname');
+
+                return self::createShortCode($type, $tagname, $html);
+            }
+            else if($type = $child->getAttribute('shortcode'))
+            {
+                if(!$tagname = $child->getAttribute('tagname'))
+                {
+                    $tagname = $child->tagName;
+                }
+
+                $child->removeAttribute('shortcode');
+                return self::createShortCode($type, $tagname, $html);
+            }
+            else if($child->getAttribute('type') === 'shortcode')
+            {
+                $type = $child->getAttribute('name');
+
+                if(!$tagname = $child->getAttribute('tagname'))
+                {
+                    $tagname = $child->tagName;
+                }
+
+                $child->removeAttribute('type');
+                $child->removeAttribute('name');
+
+                return self::createShortCode($type, $tagname, $html);
+            }
         }
 
-        if(!$type = $child->getAttribute('type'))
-        {
-            throw new AttributeTypeNotFound($child, 404);
-        }
+        return $html->appendCreateHtml($child->tagName);
+    }
 
+    private static function createShortCode(string $type,
+        string $tagname, HtmlElement $html) : ShortCodeInterface
+    {
         if(!$class = self::getShortCode($type))
         {
-            throw new ShortCodeNotFound($type, 404);
+            throw new ShortCodeNotFound($type);
         }
 
         if(!class_exists($class))
         {
-            throw new ShortCodeClassNotFound($class, 404);
+            throw new ShortCodeClassNotFound($class);
         }
 
-        $tagname = $child->getAttribute('tagname');
-        $result = new $class(($tagname ?: 'div'));
+        $result = new $class($tagname);
 
         if(!$result instanceof ShortCodeInterface)
         {
-            throw new ShortCodeImplement($result, 404);
+            throw new ShortCodeImplement($result);
         }
 
         if(!$result instanceof HtmlElement)
         {
-            throw new ShortCodeExtends($result, 404);
+            throw new ShortCodeExtends($result);
         }
 
         $html->appendHtml($result);
         return $result;
     }
 
-    protected static function getAttributes(\DOMElement $element)
+    private static function getAttributes(\DOMElement $element)
     {
         $attributes = [];
 

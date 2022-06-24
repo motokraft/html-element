@@ -11,7 +11,7 @@ class ShortCodeExtends extends \Exception
 {
     private $obj;
 
-    function __construct(object $obj, int $code)
+    function __construct(object $obj, int $code = 510)
     {
         $this->obj = $obj;
 

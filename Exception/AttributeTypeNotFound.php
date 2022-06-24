@@ -9,7 +9,7 @@ class AttributeTypeNotFound extends \Exception
 {
     private $element;
 
-    function __construct(\DOMElement $element, int $code)
+    function __construct(\DOMElement $element, int $code = 404)
     {
         $this->element = $element;
 
