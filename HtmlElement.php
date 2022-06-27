@@ -12,6 +12,7 @@ use \Motokraft\HtmlElement\Exception\ShortCodeClassNotFound;
 use \Motokraft\HtmlElement\Exception\ShortCodeNotFound;
 use \Motokraft\HtmlElement\Exception\ShortCodeImplement;
 use \Motokraft\HtmlElement\Exception\ShortCodeExtends;
+use \Motokraft\HtmlElement\Exception\RenderItemNotFound;
 
 class HtmlElement
 {
@@ -25,8 +26,8 @@ class HtmlElement
     private $type;
     private $level = 0;
     private $parent;
-    private $attrs;
-    private $styles;
+    private $attrs = [];
+    private $styles = [];
 	private $before = [];
 	private $childrens = [];
 	private $after = [];
@@ -35,9 +36,6 @@ class HtmlElement
 
     function __construct(string $type, array $attrs = [])
     {
-        $this->attrs = new Iterator\ItemsIterator;
-        $this->styles = new Iterator\ItemsIterator;
-
         if(empty($type))
         {
             throw new \Exception('Item type required!');
@@ -88,7 +86,7 @@ class HtmlElement
         return $this;
     }
 
-    function getParent() : static
+    function getParent() : null|static
     {
         return $this->parent;
     }
@@ -115,7 +113,7 @@ class HtmlElement
         return $this;
 	}
 
-    function beforeHtml(HtmlElement $element) : HtmlElement
+    function beforeHtml(HtmlElement $element) : static
 	{
         $element->setLevel(($this->level + 1));
         $element->setParent($this);
@@ -124,7 +122,7 @@ class HtmlElement
         return $element;
 	}
 
-    function beforeCreateHtml(string $type, array $attrs = []) : HtmlElement
+    function beforeCreateHtml(string $type, array $attrs = []) : static
 	{
         $result = new HtmlElement($type, $attrs);
         return $this->beforeHtml($result);
@@ -153,7 +151,7 @@ class HtmlElement
         return $this;
 	}
 
-    function prependHtml(HtmlElement $element) : HtmlElement
+    function prependHtml(HtmlElement $element) : static
 	{
         $element->setLevel(($this->level + 1));
         $element->setParent($this);
@@ -162,7 +160,7 @@ class HtmlElement
         return $element;
 	}
 
-    function prependCreateHtml(string $type, array $attrs = []) : HtmlElement
+    function prependCreateHtml(string $type, array $attrs = []) : static
 	{
         $result = new HtmlElement($type, $attrs);
         return $this->prependHtml($result);
@@ -202,7 +200,7 @@ class HtmlElement
         return $this;
 	}
 
-	function appendHtml(HtmlElement $element) : HtmlElement
+	function appendHtml(HtmlElement $element) : static
 	{
         $element->setLevel(($this->level + 1));
         $element->setParent($this);
@@ -211,7 +209,7 @@ class HtmlElement
         return $element;
 	}
 
-    function appendCreateHtml(string $type, array $attrs = []) : HtmlElement
+    function appendCreateHtml(string $type, array $attrs = []) : static
 	{
         $result = new HtmlElement($type, $attrs);
         return $this->appendHtml($result);
@@ -240,7 +238,7 @@ class HtmlElement
         return $this;
 	}
 
-    function afterHtml(HtmlElement $element) : HtmlElement
+    function afterHtml(HtmlElement $element) : static
 	{
         $element->setLevel($this->level);
         $element->setParent($this);
@@ -249,7 +247,7 @@ class HtmlElement
         return $element;
 	}
 
-    function afterCreateHtml(string $type, array $attrs = []) : HtmlElement
+    function afterCreateHtml(string $type, array $attrs = []) : static
 	{
         $result = new HtmlElement($type, $attrs);
         return $this->afterHtml($result);
@@ -369,7 +367,7 @@ class HtmlElement
 
         if(empty($tmpl))
         {
-            throw new \Exception('Item render not found!');
+            throw new RenderItemNotFound($this);
         }
 
         $this->addRenderKey('type', $this->type);
@@ -379,14 +377,18 @@ class HtmlElement
             $this->addAttrData('level', $this->level);
         }
 
-        if($style = $this->styles->implode(' '))
+        if($style_value = implode(' ', $this->styles))
         {
-            $this->addAttribute('style', $style);
+            $tmpl = str_replace(
+                '{style}', ' ' . $style_value, $tmpl
+            );
         }
 
-        if($attr = $this->attrs->implode(' '))
+        if($attr_value = implode(' ', $this->attrs))
         {
-            $this->addRenderKey('attrs', ' ' . $attr);
+            $tmpl = str_replace(
+                '{attrs}', ' ' . $attr_value, $tmpl
+            );
         }
 
         preg_match_all('#\{([^body].*)\}#iU', $tmpl, $matches, 2);
@@ -399,7 +401,7 @@ class HtmlElement
 
         $indent = PHP_EOL . str_repeat("\t", $this->level);
 
-        if(!empty($this->childrens))
+        if($childrens = $this->getChildrens())
         {
             $separator = null;
 
@@ -411,7 +413,7 @@ class HtmlElement
                 $separator = $indent . "\t";
             }
 
-            $body = implode($separator, $this->childrens);
+            $body = implode($separator, $childrens);
             $tmpl = str_replace('{body}', $body, $tmpl);
         }
         else
