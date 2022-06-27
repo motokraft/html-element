@@ -7,17 +7,18 @@
 
 use \Motokraft\HtmlElement\HtmlElement;
 
-class HtmlElementIterator extends \RecursiveIteratorIterator implements \RecursiveIterator
+class HtmlParentIterator extends \RecursiveIteratorIterator implements \RecursiveIterator
 {
     function __construct(HtmlElement $element)
     {
-        $items = $element->getChildrens();
+        $iterator = new \RecursiveArrayIterator(
+            [$element->getParent()]
+        );
 
-        $iterator = new \RecursiveArrayIterator($items);
         parent::__construct($iterator, 1);
     }
 
-    function callGetChildren()
+    function callHasChildren() : bool
     {
         $element = parent::current();
 
@@ -26,11 +27,11 @@ class HtmlElementIterator extends \RecursiveIteratorIterator implements \Recursi
             return false;
         }
 
-        $items = (array) $element->getChildrens();
-        return new \RecursiveArrayIterator($items);
+        $parent = $element->getParent();
+        return ($parent instanceof HtmlElement);
     }
 
-    function callHasChildren()
+    function callGetChildren() : bool|\RecursiveArrayIterator
     {
         $element = parent::current();
 
@@ -39,16 +40,16 @@ class HtmlElementIterator extends \RecursiveIteratorIterator implements \Recursi
             return false;
         }
 
-        $items = $element->getChildrens();
-        return (count($items) > 0);
+        $parent = $element->getParent();
+        return new \RecursiveArrayIterator([$parent]);
     }
 
-    function hasChildren()
+    function hasChildren() : bool
     {
         return $this->callHasChildren();
     }
 
-    function getChildren()
+    function getChildren() : bool|\RecursiveArrayIterator
     {
         return $this->callGetChildren();
     }

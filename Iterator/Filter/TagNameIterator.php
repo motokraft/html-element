@@ -7,17 +7,9 @@
 
 use \Motokraft\HtmlElement\HtmlElement;
 
-class TagIterator extends \RecursiveFilterIterator
+class TagNameIterator extends FilterIterator
 {
-    private $tag;
-
-    function __construct(\RecursiveIterator $iterator, string $tag)
-    {
-        parent::__construct($iterator);
-        $this->tag = $tag;
-    }
-
-    function accept()
+    function accept() : bool
     {
         $current = parent::current();
 
@@ -26,6 +18,7 @@ class TagIterator extends \RecursiveFilterIterator
             return false;
         }
 
-        return $current->hasType($this->tag);
+        $value = (string) $this->getValue();
+        return $current->hasType($value);
     }
 }

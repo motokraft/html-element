@@ -6,10 +6,16 @@
  */
 
 use \Motokraft\HtmlElement\HtmlElement;
+use \Motokraft\HtmlElement\Iterator\Filter\FilterIterator;
 
 class HtmlElementList extends \ArrayIterator
 {
-    function addClass(string $value)
+    function __construct(FilterIterator $iterator)
+    {
+        parent::__construct($iterator->getArray());
+    }
+
+    function addClass(string $value) : static
     {
         $filter_item = function ($item)
         {
@@ -27,7 +33,7 @@ class HtmlElementList extends \ArrayIterator
         return $items->map($map_item);
     }
 
-    function addAttribute(string $name, $value)
+    function addAttribute(string $name, $value) : static
     {
         $filter_item = function ($item)
         {
@@ -45,7 +51,7 @@ class HtmlElementList extends \ArrayIterator
         return $items->map($map_item);
     }
 
-    function filter(callable $func)
+    function filter(callable $func) : static
     {
         $result = new static;
 
@@ -62,7 +68,7 @@ class HtmlElementList extends \ArrayIterator
         return $result;
     }
 
-    function map(callable $func)
+    function map(callable $func) : static
     {
         $result = new static;
 

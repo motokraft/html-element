@@ -5,7 +5,7 @@
  * @link https://github.com/motokraft/html-element
  */
 
-class NameIterator extends FilterIterator
+class AttributeIterator extends FilterIterator
 {
     function accept() : bool
     {
@@ -14,14 +14,7 @@ class NameIterator extends FilterIterator
             return false;
         }
 
-        if(!$current->hasAttribute('name'))
-        {
-            return false;
-        }
-
-        $name = $current->getAttribute('name');
         $value = (string) $this->getValue();
-
-        return ($name->getValue() === $value);
+        return $current->hasAttribute($value);
     }
 }

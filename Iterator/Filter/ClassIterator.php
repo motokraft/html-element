@@ -5,24 +5,16 @@
  * @link https://github.com/motokraft/html-element
  */
 
-class ClassIterator extends AttrIterator
+class ClassIterator extends FilterIterator
 {
-    private $class;
-
-    function __construct(\RecursiveIterator $iterator, string $class)
+    function accept() : bool
     {
-        parent::__construct($iterator, 'class');
-        $this->class = $class;
-    }
-
-    function accept()
-    {
-        if(!parent::accept())
+        if(!$current = parent::current())
         {
             return false;
         }
 
-        $current = parent::current();
-        return $current->hasClass($this->class);
+        $value = (string) $this->getValue();
+        return $current->hasClass($value);
     }
 }

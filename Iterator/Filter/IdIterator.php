@@ -5,26 +5,23 @@
  * @link https://github.com/motokraft/html-element
  */
 
-class IdIterator extends AttrIterator
+class IdIterator extends FilterIterator
 {
-    private $id;
-
-    function __construct(\RecursiveIterator $iterator, string $id)
+    function accept() : bool
     {
-        parent::__construct($iterator, 'id');
-        $this->id = $id;
-    }
-
-    function accept()
-    {
-        if(!parent::accept())
+        if(!$current = parent::current())
         {
             return false;
         }
 
-        $current = parent::current();
+        if(!$current->hasAttribute('id'))
+        {
+            return false;
+        }
 
         $id = $current->getAttribute('id');
-        return ($id->getValue() === $this->id);
+        $value = (string) $this->getValue();
+
+        return ($id->getValue() === $value);
     }
 }
