@@ -125,4 +125,35 @@ trait AttributeTrait
 
         return array_filter($this->attrs, $filter_attr);
     }
+
+    function addAttrAria(string $name, $value = null) : BaseAttribute
+    {
+        return $this->addAttribute('aria-' . $name, $value);
+    }
+
+    function getAttrAria(string $name, $value = null)
+    {
+        return $this->getAttribute('aria-' . $name, $value);
+    }
+
+    function removeAttrAria(string $name) : bool
+    {
+        return $this->removeAttribute('aria-' . $name);
+    }
+
+    function hasAttrAria(string $name) : bool
+    {
+        return $this->hasAttribute('aria-' . $name);
+    }
+
+    function getAttrsAria() : array
+    {
+        $filter_attr = function (BaseAttribute $attr)
+        {
+            $name = (string) $attr->getName();
+            return preg_match('/aria-(.*)/m', $name);
+        };
+
+        return array_filter($this->attrs, $filter_attr);
+    }
 }
