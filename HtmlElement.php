@@ -379,9 +379,7 @@ class HtmlElement
 
         if($style_value = implode(' ', $this->styles))
         {
-            $tmpl = str_replace(
-                '{style}', ' ' . $style_value, $tmpl
-            );
+            $this->addAttribute('style', $style_value);
         }
 
         if($attr_value = implode(' ', $this->attrs))
