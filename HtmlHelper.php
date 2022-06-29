@@ -12,6 +12,7 @@ use \Motokraft\HtmlElement\Exception\AttributeTypeNotFound;
 use \Motokraft\HtmlElement\Exception\ShortCodeImplement;
 use \Motokraft\HtmlElement\Exception\ShortCodeExtends;
 use \Motokraft\HtmlElement\Object\Attributes;
+use \Motokraft\HtmlElement\Attributes\BaseAttribute;
 use \Motokraft\HtmlElement\Attributes\ClassAttribute;
 use \Motokraft\HtmlElement\Event\ObjectEvent;
 use \Motokraft\HtmlElement\Event\BaseEvent;
@@ -29,7 +30,8 @@ class HtmlHelper
     const REGEX_SHORTCODE_3 = '/{(.*) type="shortcode" name="(.*?)"(.*?)}/i';
 
     private static $attributes = [
-        'class' => ClassAttribute::class
+        'class' => ClassAttribute::class,
+        '_default' => BaseAttribute::class
     ];
 
     private static $styles = [];

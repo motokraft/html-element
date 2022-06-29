@@ -7,6 +7,8 @@
 
 use \Motokraft\HtmlElement\Attributes\BaseAttribute;
 use \Motokraft\HtmlElement\HtmlHelper;
+use \Motokraft\HtmlElement\Exception\AttributeClassNotFound;
+use \Motokraft\HtmlElement\Exception\AttributeExtends;
 
 trait AttributeTrait
 {
@@ -49,14 +51,19 @@ trait AttributeTrait
     {
         if(!$class = HtmlHelper::getAttribute($name))
         {
-            $class = BaseAttribute::class;
+            $class = HtmlHelper::getAttribute('_default');
+        }
+
+        if(!class_exists($class))
+        {
+            throw new AttributeClassNotFound($class);
         }
 
         $result = new $class($name, $value);
 
         if(!$result instanceof BaseAttribute)
         {
-            throw new \Exception('The attribute class must be inherited from the base class ' . BaseAttribute::class);
+            throw new AttributeExtends($result);
         }
 
         $this->attrs[$name] = $result;
