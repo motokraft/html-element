@@ -13,6 +13,7 @@ use \Motokraft\HtmlElement\Exception\ShortCodeNotFound;
 use \Motokraft\HtmlElement\Exception\ShortCodeImplement;
 use \Motokraft\HtmlElement\Exception\ShortCodeExtends;
 use \Motokraft\HtmlElement\Exception\RenderItemNotFound;
+use \Motokraft\HtmlElement\Event\ObjectEvent;
 
 class HtmlElement
 {
@@ -454,6 +455,11 @@ class HtmlElement
 		}
 
         return (string) $tmpl;
+    }
+
+    function getObjectEvent(string $name) : ObjectEvent
+    {
+        return new ObjectEvent($name, $this);
     }
 
     function __toString() : string
