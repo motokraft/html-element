@@ -115,7 +115,7 @@ trait AttributeTrait
         return $this->hasAttribute('data-' . $name);
     }
 
-    function getAttrsData() : ItemsIterator
+    function getAttrsData() : array
     {
         $filter_attr = function (BaseAttribute $attr)
         {
@@ -123,6 +123,6 @@ trait AttributeTrait
             return preg_match('/data-(.*)/m', $name);
         };
 
-        return $this->attrs->filter($filter_attr);
+        return array_filter($this->attrs, $filter_attr);
     }
 }
