@@ -6,7 +6,6 @@
  */
 
 use \Motokraft\HtmlElement\Attributes\BaseAttribute;
-use \Motokraft\HtmlElement\Iterator\ItemsIterator;
 use \Motokraft\HtmlElement\HtmlHelper;
 
 trait AttributeTrait
@@ -90,7 +89,7 @@ trait AttributeTrait
         return isset($this->attrs[$name]);
     }
 
-    function getAttributes() : ItemsIterator
+    function getAttributes() : array
     {
         return $this->attrs;
     }

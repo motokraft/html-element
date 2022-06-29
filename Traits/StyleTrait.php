@@ -6,7 +6,6 @@
  */
 
 use \Motokraft\HtmlElement\Styles\BaseStyle;
-use \Motokraft\HtmlElement\Iterator\ItemsIterator;
 use \Motokraft\HtmlElement\HtmlHelper;
 
 trait StyleTrait
@@ -55,7 +54,7 @@ trait StyleTrait
         return isset($this->styles[$name]);
     }
 
-    function getStyles() : ItemsIterator
+    function getStyles() : array
     {
         return $this->styles;
     }
