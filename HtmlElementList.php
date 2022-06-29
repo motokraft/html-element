@@ -15,7 +15,7 @@ class HtmlElementList extends \ArrayIterator
         parent::__construct($iterator->getArray());
     }
 
-    function addClass(string $value) : static
+    function addClass(string $value) : \ArrayIterator
     {
         $filter_item = function ($item)
         {
@@ -33,7 +33,7 @@ class HtmlElementList extends \ArrayIterator
         return $items->map($map_item);
     }
 
-    function addAttribute(string $name, $value) : static
+    function addAttribute(string $name, $value) : \ArrayIterator
     {
         $filter_item = function ($item)
         {
@@ -51,9 +51,9 @@ class HtmlElementList extends \ArrayIterator
         return $items->map($map_item);
     }
 
-    function filter(callable $func) : static
+    function filter(callable $func) : \ArrayIterator
     {
-        $result = new static;
+        $result = new \ArrayIterator;
 
         foreach($this as $item)
         {
@@ -68,9 +68,9 @@ class HtmlElementList extends \ArrayIterator
         return $result;
     }
 
-    function map(callable $func) : static
+    function map(callable $func) : \ArrayIterator
     {
-        $result = new static;
+        $result = new \ArrayIterator;
 
         foreach($this as $item)
         {
