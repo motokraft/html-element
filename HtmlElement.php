@@ -385,17 +385,26 @@ class HtmlElement
 
         if($attr_value = implode(' ', $this->attrs))
         {
-            $tmpl = str_replace(
-                '{attrs}', ' ' . $attr_value, $tmpl
-            );
+            $this->addRenderKey('attrs', ' ' . $attr_value);
         }
 
         preg_match_all('#\{([^body].*)\}#iU', $tmpl, $matches, 2);
 
-        foreach($matches as $matche)
+        $map_matche = function (array $data)
         {
-            $value = $this->getRenderKey($matche[1]);
-            $tmpl = str_replace($matche[0], $value, $tmpl);
+            return strtolower($data[1]);
+        };
+
+        $data = array_map($map_matche, $matches);
+        $data = array_unique($data);
+
+        foreach(array_unique($data) as $name)
+        {
+            $value = $this->getRenderKey($name);
+
+            $tmpl = str_replace(
+                '{' . $name . '}', $value, $tmpl
+            );
         }
 
         $indent = PHP_EOL . str_repeat("\t", $this->level);
