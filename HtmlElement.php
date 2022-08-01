@@ -454,7 +454,7 @@ class HtmlElement
             }, $this->comment_after);
 
             $comment = implode($indent, $values);
-            $tmpl .= $indent . $comment . PHP_EOL;
+            $tmpl .= $indent . $comment;
         }
 
         if(!empty($this->after))
