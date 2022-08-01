@@ -39,4 +39,10 @@ trait ClassTrait
 
         return $attr->hasValue($value);
     }
+
+    function replaceClass(string $old, string $new)
+    {
+        $this->removeClass($old);
+        $this->addClass($new);
+    }
 }
