@@ -396,7 +396,6 @@ class HtmlElement
         };
 
         $data = array_map($map_matche, $matches);
-        $data = array_unique($data);
 
         foreach(array_unique($data) as $name)
         {
