@@ -5,11 +5,18 @@
  * @link https://github.com/motokraft/html-element
  */
 
+use \Motokraft\HtmlElement\Attributes\BaseAttribute;
+
 class AttributeIterator extends FilterIterator
 {
     function accept() : bool
     {
         if(!$current = parent::current())
+        {
+            return false;
+        }
+
+        if(!$current instanceof BaseAttribute)
         {
             return false;
         }

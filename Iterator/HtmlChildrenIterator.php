@@ -13,7 +13,14 @@ class HtmlChildrenIterator extends \RecursiveIteratorIterator implements \Recurs
     {
         $items = $element->getChildrens();
 
+        $filter_item = function ($item)
+        {
+            return ($item instanceof HtmlElement);
+        };
+
+        $items = array_filter($items, $filter_item);
         $iterator = new \RecursiveArrayIterator($items);
+
         parent::__construct($iterator, 1);
     }
 

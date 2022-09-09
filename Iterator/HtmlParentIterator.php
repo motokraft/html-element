@@ -11,10 +11,17 @@ class HtmlParentIterator extends \RecursiveIteratorIterator implements \Recursiv
 {
     function __construct(HtmlElement $element)
     {
-        $iterator = new \RecursiveArrayIterator(
-            [$element->getParent()]
-        );
+        if(!$parent = $element->getParent())
+        {
+            return;
+        }
 
+        if(!$parent instanceof HtmlElement)
+        {
+            return;
+        }
+
+        $iterator = new \RecursiveArrayIterator([$parent]);
         parent::__construct($iterator, 1);
     }
 
