@@ -14,6 +14,7 @@ use \Motokraft\HtmlElement\Exception\ShortCodeExtends;
 use \Motokraft\HtmlElement\Exception\EventClassNotFound;
 use \Motokraft\HtmlElement\Exception\EventImplement;
 use \Motokraft\HtmlElement\Exception\EventExtends;
+use \Motokraft\HtmlElement\Exception\FileNotFound;
 use \Motokraft\HtmlElement\Object\Attributes;
 use \Motokraft\HtmlElement\Attributes\BaseAttribute;
 use \Motokraft\HtmlElement\Attributes\ClassAttribute;
@@ -264,6 +265,59 @@ class HtmlHelper
 
         $result = array_map($map_event, $_events);
         return !in_array(false, $result, true);
+    }
+
+    static function loadFile(string $filepath, bool $shortcode = true) : bool|HtmlElement
+    {
+        if(!is_file($filepath))
+        {
+            throw new FileNotFound($filepath);
+        }
+
+        $source = file_get_contents($filepath);
+        return self::loadString($source, $shortcode);
+    }
+
+    static function loadString(string $source, bool $shortcode = true) : bool|HtmlElement
+    {
+        $source = preg_replace('/[\r\n]+/', '', $source);
+        $source = preg_replace('/\s+/u', ' ', $source);
+        $source = mb_convert_encoding($source, 'HTML-ENTITIES', 'UTF-8');
+
+        if($shortcode)
+        {
+            $source = self::parseShortCode($source);
+        }
+
+        libxml_use_internal_errors(true);
+
+        $dom = new \DOMDocument('1.0', 'UTF-8');
+        $dom->loadHTML($source, LIBXML_HTML_NODEFDTD);
+
+        $xpath = new \DOMXPath($dom);
+        $result = $xpath->query('body/*');
+        $child = $result->item(0);
+
+        if(!$child instanceof \DOMElement)
+        {
+            return false;
+        }
+
+        $result = new HtmlElement($child->tagName);
+        $attrs = self::getAttributes($child);
+
+        if($result instanceof ShortCodeInterface
+            && ($data = $attrs->getArray()))
+        {
+            $result->loadOptions($data);
+        }
+        else if($data = $attrs->getArray())
+        {
+            $result->loadAttributes($data);
+        }
+
+        self::parseDOMElement($result, $child, $shortcode);
+        return $result;
     }
 
     static function loadHTML(string $source, HtmlElement $result, bool $shortcode = true)
