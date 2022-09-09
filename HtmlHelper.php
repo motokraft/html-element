@@ -267,7 +267,8 @@ class HtmlHelper
         return !in_array(false, $result, true);
     }
 
-    static function loadFile(string $filepath, bool $shortcode = true) : bool|HtmlElement
+    static function loadFile(string $filepath,
+        ?HtmlElement $element = null, bool $shortcode = true) : bool|HtmlElement
     {
         if(!is_file($filepath))
         {
@@ -275,10 +276,11 @@ class HtmlHelper
         }
 
         $source = file_get_contents($filepath);
-        return self::loadString($source, $shortcode);
+        return self::loadString($source, $element, $shortcode);
     }
 
-    static function loadString(string $source, bool $shortcode = true) : bool|HtmlElement
+    static function loadString(string $source,
+        ?HtmlElement $element = null, bool $shortcode = true) : bool|HtmlElement
     {
         $source = preg_replace('/[\r\n]+/', '', $source);
         $source = preg_replace('/\s+/u', ' ', $source);
@@ -303,7 +305,15 @@ class HtmlHelper
             return false;
         }
 
-        $result = new HtmlElement($child->tagName);
+        if($element instanceof HtmlElement)
+        {
+            $result = $element->appendCreateHtml($child->tagName);
+        }
+        else
+        {
+            $result = new HtmlElement($child->tagName);
+        }
+
         $attrs = self::getAttributes($child);
 
         if($result instanceof ShortCodeInterface
