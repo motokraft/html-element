@@ -103,7 +103,7 @@ class HtmlElement
         return $this->level;
     }
 
-    function before(string $result, bool $escape = true) : static
+    function before(string $result, bool $escape = true)
 	{
         if($escape)
         {
@@ -114,7 +114,7 @@ class HtmlElement
         return $this;
 	}
 
-    function beforeHtml(HtmlElement $element) : static
+    function beforeHtml(HtmlElement $element)
 	{
         $element->setLevel(($this->level + 1));
         $element->setParent($this);
@@ -123,7 +123,7 @@ class HtmlElement
         return $element;
 	}
 
-    function beforeCreateHtml(string $type, array $attrs = []) : static
+    function beforeCreateHtml(string $type, array $attrs = [])
 	{
         $result = new HtmlElement($type, $attrs);
         return $this->beforeHtml($result);
@@ -141,7 +141,7 @@ class HtmlElement
         return $this->beforeShortCode($result);
     }
 
-	function prepend(string $result, bool $escape = true) : static
+	function prepend(string $result, bool $escape = true)
 	{
         if($escape)
         {
@@ -152,7 +152,7 @@ class HtmlElement
         return $this;
 	}
 
-    function prependHtml(HtmlElement $element) : static
+    function prependHtml(HtmlElement $element)
 	{
         $element->setLevel(($this->level + 1));
         $element->setParent($this);
@@ -161,7 +161,7 @@ class HtmlElement
         return $element;
 	}
 
-    function prependCreateHtml(string $type, array $attrs = []) : static
+    function prependCreateHtml(string $type, array $attrs = [])
 	{
         $result = new HtmlElement($type, $attrs);
         return $this->prependHtml($result);
@@ -179,7 +179,7 @@ class HtmlElement
         return $this->prependShortCode($result);
     }
 
-	function html(string $result, bool $escape = true) : static
+	function html(string $result, bool $escape = true)
 	{
         if($escape)
         {
@@ -190,7 +190,7 @@ class HtmlElement
         return $this;
 	}
 
-    function append(string $result, bool $escape = true) : static
+    function append(string $result, bool $escape = true)
 	{
         if($escape)
         {
@@ -201,7 +201,7 @@ class HtmlElement
         return $this;
 	}
 
-	function appendHtml(HtmlElement $element) : static
+	function appendHtml(HtmlElement $element)
 	{
         $element->setLevel(($this->level + 1));
         $element->setParent($this);
@@ -210,7 +210,7 @@ class HtmlElement
         return $element;
 	}
 
-    function appendCreateHtml(string $type, array $attrs = []) : static
+    function appendCreateHtml(string $type, array $attrs = [])
 	{
         $result = new HtmlElement($type, $attrs);
         return $this->appendHtml($result);
@@ -228,7 +228,7 @@ class HtmlElement
         return $this->appendShortCode($result);
     }
 
-	function after(string $result, bool $escape = true) : static
+	function after(string $result, bool $escape = true)
 	{
         if($escape)
         {
@@ -239,7 +239,7 @@ class HtmlElement
         return $this;
 	}
 
-    function afterHtml(HtmlElement $element) : static
+    function afterHtml(HtmlElement $element)
 	{
         $element->setLevel($this->level);
         $element->setParent($this);
@@ -248,7 +248,7 @@ class HtmlElement
         return $element;
 	}
 
-    function afterCreateHtml(string $type, array $attrs = []) : static
+    function afterCreateHtml(string $type, array $attrs = [])
 	{
         $result = new HtmlElement($type, $attrs);
         return $this->afterHtml($result);
@@ -337,7 +337,7 @@ class HtmlElement
         return false;
     }
 
-    function setCommentBefore(string $value) : static
+    function setCommentBefore(string $value)
     {
         if($args = array_slice(func_get_args(), 1))
         {
@@ -348,7 +348,7 @@ class HtmlElement
         return $this;
     }
 
-    function setCommentAfter(string $value) : static
+    function setCommentAfter(string $value)
     {
         if($args = array_slice(func_get_args(), 1))
         {
