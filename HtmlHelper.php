@@ -11,27 +11,29 @@ use \Motokraft\HtmlElement\Exception\ShortCodeClassNotFound;
 use \Motokraft\HtmlElement\Exception\AttributeTypeNotFound;
 use \Motokraft\HtmlElement\Exception\ShortCodeImplement;
 use \Motokraft\HtmlElement\Exception\ShortCodeExtends;
+use \Motokraft\HtmlElement\Exception\EventClassNotFound;
+use \Motokraft\HtmlElement\Exception\EventImplement;
+use \Motokraft\HtmlElement\Exception\EventExtends;
 use \Motokraft\HtmlElement\Object\Attributes;
 use \Motokraft\HtmlElement\Attributes\BaseAttribute;
 use \Motokraft\HtmlElement\Attributes\ClassAttribute;
 use \Motokraft\HtmlElement\Event\ObjectEvent;
 use \Motokraft\HtmlElement\Event\BaseEvent;
 use \Motokraft\HtmlElement\Event\EventInterface;
-use \Motokraft\HtmlElement\Exception\EventClassNotFound;
-use \Motokraft\HtmlElement\Exception\EventImplement;
-use \Motokraft\HtmlElement\Exception\EventExtends;
 
 class HtmlHelper
 {
     const SHORTCODE_DEFAULT_TAGNAME = 'div';
 
-    const REGEX_SHORTCODE_1 = '/{shortcode(.*)}/i';
-    const REGEX_SHORTCODE_2 = '/{(.*) shortcode="(.*?)"(.*?)}/i';
-    const REGEX_SHORTCODE_3 = '/{(.*) type="shortcode" name="(.*?)"(.*?)}/i';
-
     private static $attributes = [
         'class' => ClassAttribute::class,
         '_default' => BaseAttribute::class
+    ];
+
+    private static $regex_schortcodes = [
+        '/{shortcode(.*)}/i' => '<shortcode$1 />',
+        '/{(.*) shortcode="(.*?)"(.*?)}/i' => '<shortcode tagname="$1" type="$2"$3 />',
+        '/{(.*) type="shortcode" name="(.*?)"(.*?)}/i' => '<shortcode tagname="$1" type="$2"$3 />'
     ];
 
     private static $styles = [];
@@ -39,10 +41,9 @@ class HtmlHelper
     private static $events = [];
     private static $classes = [];
 
-    static function addAttribute(string $name, string $class) : bool
+    static function addAttribute(string $name, string $class)
     {
         self::$attributes[$name] = $class;
-        return true;
     }
 
     static function getAttribute(string $name) : bool|string
@@ -71,10 +72,40 @@ class HtmlHelper
         return isset(self::$attributes[$name]);
     }
 
-    static function addStyle(string $name, string $class) : bool
+    static function addRegexSchortCode(string $pattern, string $replacement)
+    {
+        self::$regex_schortcodes[$pattern] = $replacement;
+    }
+
+    static function getRegexSchortCode(string $pattern) : bool|string
+    {
+        if(!self::hasRegexSchortCode($pattern))
+        {
+            return false;
+        }
+
+        return self::$regex_schortcodes[$pattern];
+    }
+
+    static function removeRegexSchortCode(string $pattern) : bool
+    {
+        if(!self::hasRegexSchortCode($pattern))
+        {
+            return false;
+        }
+
+        unset(self::$regex_schortcodes[$pattern]);
+        return true;
+    }
+
+    static function hasRegexSchortCode(string $pattern) : bool
+    {
+        return isset(self::$regex_schortcodes[$pattern]);
+    }
+
+    static function addStyle(string $name, string $class)
     {
         self::$styles[$name] = $class;
-        return true;
     }
 
     static function getStyle(string $name) : bool|string
@@ -103,10 +134,9 @@ class HtmlHelper
         return isset(self::$styles[$name]);
     }
 
-    static function addShortCode(string $name, string $class) : bool
+    static function addShortCode(string $name, string $class)
     {
         self::$shortcodes[$name] = $class;
-        return true;
     }
 
     static function getShortCode(string $name) : bool|string
@@ -135,7 +165,7 @@ class HtmlHelper
         return isset(self::$shortcodes[$name]);
     }
 
-    static function addEventClass(string $name, string $class) : bool
+    static function addEventClass(string $name, string $class)
     {
         if(!self::hasEvent($name))
         {
@@ -143,7 +173,6 @@ class HtmlHelper
         }
 
         array_push(self::$events[$name], $class);
-        return true;
     }
 
     static function getEventClasses(string $name) : array
@@ -245,45 +274,38 @@ class HtmlHelper
 
         if($shortcode)
         {
-            if(preg_match(self::REGEX_SHORTCODE_1, $source))
-            {
-                $source = preg_replace(
-                    self::REGEX_SHORTCODE_1, '<shortcode$1 />', $source
-                );
-            }
-
-            if(preg_match(self::REGEX_SHORTCODE_2, $source))
-            {
-                $replacement = '<shortcode tagname="$1" type="$2"$3 />';
-
-                $source = preg_replace(
-                    self::REGEX_SHORTCODE_2, $replacement, $source
-                );
-            }
-
-            if(preg_match(self::REGEX_SHORTCODE_3, $source))
-            {
-                $replacement = '<shortcode tagname="$1" type="$2"$3 />';
-
-                $source = preg_replace(
-                    self::REGEX_SHORTCODE_3, $replacement, $source
-                );
-            }
+            $source = self::parseShortCode($source);
         }
 
         libxml_use_internal_errors(true);
         $dom = new \DOMDocument('1.0', 'UTF-8');
 
         $dom->loadHTML($source, LIBXML_HTML_NODEFDTD);
+        $body = $dom->getElementsByTagName('body');
 
-        $items = $dom->getElementsByTagName('body');
-        self::parseDOMElement($result, $items->item(0), $shortcode);
+        if($body->item(0) instanceof \DOMElement)
+        {
+            self::parseDOMElement($result, $body->item(0), $shortcode);
+        }
 
         return $result;
     }
 
+    private static function parseShortCode(string $source) : string
+    {
+        foreach(self::$regex_schortcodes as $pattern => $replacement)
+        {
+            if(preg_match($pattern, $source))
+            {
+                $source = preg_replace($pattern, $replacement, $source);
+            }
+        }
+
+        return $source;
+    }
+
     private static function parseDOMElement(
-        HtmlElement $result, \DOMElement $element, bool $shortcode = true)
+        HtmlElement $result, \DOMElement $element, bool $shortcode)
     {
         $attrs = self::getAttributes($element);
 
@@ -301,7 +323,7 @@ class HtmlHelper
         {
             if($child_node instanceof \DOMText)
             {
-                $result->append(trim($child_node->data));
+                $result->append($child_node->data);
             }
             else if($child_node instanceof \DOMElement)
             {
