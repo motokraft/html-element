@@ -5,7 +5,7 @@
  * @link https://github.com/motokraft/html-element
  */
 
-use \Motokraft\HtmlElement\Attributes\BaseAttribute;
+use \Motokraft\HtmlElement\HtmlElement;
 
 class AttributeIterator extends FilterIterator
 {
@@ -16,7 +16,7 @@ class AttributeIterator extends FilterIterator
             return false;
         }
 
-        if(!$current instanceof BaseAttribute)
+        if(!$current instanceof HtmlElement)
         {
             return false;
         }
