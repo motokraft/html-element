@@ -270,7 +270,7 @@ class HtmlHelper
     static function loadFile(string $filepath,
         ?HtmlElement $element = null, bool $shortcode = true) : bool|HtmlElement
     {
-        if(!is_file($filepath))
+        if(!is_readable($filepath))
         {
             throw new FileNotFound($filepath);
         }
