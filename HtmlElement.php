@@ -5,36 +5,156 @@
  * @link https://github.com/motokraft/html-element
  */
 
-defined('DEBUG') or define('DEBUG', true);
-
-use \Motokraft\HtmlElement\ShortCode\ShortCodeInterface;
-use \Motokraft\HtmlElement\Exception\ShortCodeClassNotFound;
-use \Motokraft\HtmlElement\Exception\ShortCodeNotFound;
-use \Motokraft\HtmlElement\Exception\ShortCodeImplement;
-use \Motokraft\HtmlElement\Exception\ShortCodeExtends;
 use \Motokraft\HtmlElement\Exception\RenderItemNotFound;
 use \Motokraft\HtmlElement\Event\ObjectEvent;
 
+/**
+ *
+ * This constant determines the construction of the DOM tree
+ * Don't forget to define this constant in your application
+ *
+ * @return bool true Consider nesting levels of html elements
+ * @return bool false Single line output without line breaks
+ */
+defined('DEBUG') or define('DEBUG', true);
+
+/**
+ *
+ * Implements an API interface for a single html element
+ *
+ */
+
 class HtmlElement
 {
-    use Traits\AttributeTrait,
-        Traits\StyleTrait,
-        Traits\ClassTrait,
-        Traits\RenderTrait,
-        Traits\RenderKeyTrait,
-        Traits\SelectorTrait;
+    /**
+     *
+     * Implements an API to add before an html element
+     *
+     */
+    use Traits\BeforeTrait;
 
-    private $type;
-    private $level = 0;
-    private $parent;
-    private $attrs = [];
-    private $styles = [];
-	private $before = [];
-	private $childrens = [];
-	private $after = [];
-    private $comment_before = [];
-    private $comment_after = [];
+    /**
+     *
+     * Implements an API for prepending child elements
+     *
+     */
+    use Traits\PrependTrait;
 
+    /**
+     *
+     * Implements an API for appending child elements to the end
+     *
+     */
+    use Traits\AppendTrait;
+
+    /**
+     *
+     * Implements the API for adding after the html element
+     *
+     */
+    use Traits\AfterTrait;
+
+    /**
+     *
+     * Implements an API for adding a ShortCode element
+     *
+     */
+    use Traits\ShortCodeTrait;
+
+    /**
+     *
+     * Implements an API interface for working with attributes
+     *
+     */
+    use Traits\AttributeTrait;
+
+    /**
+     *
+     * Реализует API интерфейс для работы со стилями
+     *
+     */
+    use Traits\StyleTrait;
+
+    /**
+     *
+     * Реализует API интерфейс для работы с классами
+     *
+     */
+    use Traits\ClassTrait;
+
+    /**
+     *
+     * Implements an API interface for string output
+     *
+     */
+    use Traits\RenderTrait;
+
+    /**
+     *
+     * Implements an API for custom display template options
+     *
+     */
+    use Traits\RenderKeyTrait;
+
+    /**
+     *
+     * Implements an API for traversing the DOM tree of html elements
+     *
+     */
+    use Traits\SelectorTrait;
+
+    /**
+     * Contains the html element type
+     *
+     * @var string
+     */
+    private string $type;
+
+    /**
+     * Specifies the level of nesting
+     *
+     * @var int
+     */
+    private int $level = 0;
+
+    /**
+     * Contains a child instance of the HtmlElement class
+     *
+     * @var null|HtmlElement
+     */
+    private ?self $parent = null;
+
+    /**
+     * Contains an array of child elements
+     *
+     * @var array<string|HtmlElement>
+     */
+	private array $childrens = [];
+
+    /**
+     * Array of html comments before html element
+     *
+     * @var array<string>
+     */
+    private array $comment_before = [];
+
+    /**
+     * Array of html comments after html element
+     *
+     * @var array<string>
+     */
+    private array $comment_after = [];
+
+    /**
+     * Creates a new instance of the HtmlElement class
+     *
+     * @param string $type Contains the element's html tag
+     * @param array $attrs Contains an array of attributes
+     *
+     * @exception \Exception Element html tag not specified
+     *
+     * @return void
+     */
     function __construct(string $type, array $attrs = [])
     {
         if(empty($type))
@@ -50,27 +170,60 @@ class HtmlElement
         } 
     }
 
-    function setType(string $type) : static
+    /**
+     * Specifies a new html element tag
+     *
+     * @param string $type Contains the element's html tag
+     *
+     * @return HtmlElement Returns the current class instance
+     */
+    function setType(string $type) : HtmlElement
     {
         $this->type = $type;
         return $this;
     }
 
+    /**
+     * Returns the current html tag of the element
+     *
+     * @return string 
+     */
     function getType() : string
     {
         return $this->type;
     }
 
+    /**
+     * Checks the current html tag of an element
+     *
+     * @param string $type Contains the element's html tag
+     *
+     * @return bool true Passed tag is the same
+     * @return bool false Passed tag is different
+     */
     function hasType(string $type) : bool
     {
         return ($this->type === $type);
     }
 
+    /**
+     * Sets the id attribute with its value
+     *
+     * @param string $value Contains the value of the id attribute
+     *
+     * @return Attributes\BaseAttribute Attribute class
+     */
     function setId(string $value) : Attributes\BaseAttribute
     {
         return $this->addAttribute('id', $value);
     }
 
+    /**
+     * Returns the class of the id attribute
+     *
+     * @return Attributes\BaseAttribute Attribute class
+     * @return bool false Attribute not found
+     */
     function getId() : bool|Attributes\BaseAttribute
     {
         if(!$this->hasAttribute('id'))
@@ -81,105 +234,62 @@ class HtmlElement
         return $this->getAttribute('id');
     }
 
-    function setParent(HtmlElement $parent) : static
+    /**
+     * Sets the parent HtmlElement class
+     *
+     * @param HtmlElement $parent Parent class HtmlElement
+     *
+     * @return HtmlElement Returns the current class instance
+     */
+    function setParent(HtmlElement $parent) : HtmlElement
     {
         $this->parent = $parent;
         return $this;
     }
 
-    function getParent() : null|static
+    /**
+     * Returns the parent class
+     *
+     * @return HtmlElement Parent class
+     * @return null Parent class not set
+     */
+    function getParent() : null|HtmlElement
     {
         return $this->parent;
     }
 
-    function setLevel(int $level) : static
+    /**
+     * Specifies a numeric nesting level
+     *
+     * @param int $level Numeric nesting level
+     *
+     * @return HtmlElement Returns the current class instance
+     */
+    function setLevel(int $level) : HtmlElement
     {
         $this->level = (int) $level;
         return $this;
     }
 
+    /**
+     * Returns the numeric nesting level
+     *
+     * @return int Numeric nesting level
+     */
     function getLevel() : int
     {
         return $this->level;
     }
 
-    function before(string $result, bool $escape = true)
-	{
-        if($escape)
-        {
-            $result = $this->escape($result);
-        }
-
-        array_push($this->before, $result);
-        return $this;
-	}
-
-    function beforeHtml(HtmlElement $element)
-	{
-        $element->setLevel(($this->level + 1));
-        $element->setParent($this);
-
-        array_push($this->before, $element);
-        return $element;
-	}
-
-    function beforeCreateHtml(string $type, array $attrs = [])
-	{
-        $result = new HtmlElement($type, $attrs);
-        return $this->beforeHtml($result);
-	}
-
-    function beforeShortCode(ShortCodeInterface $element) : ShortCodeInterface
-    {
-        return $this->beforeHtml($element);
-    }
-
-    function beforeCreateShortCode(string $type,
-        array $options = [], array $attrs = []) : ShortCodeInterface
-    {
-        $result = $this->createClassShortCode($type, $options, $attrs);
-        return $this->beforeShortCode($result);
-    }
-
-	function prepend(string $result, bool $escape = true)
-	{
-        if($escape)
-        {
-            $result = $this->escape($result);
-        }
-
-        array_unshift($this->childrens, $result);
-        return $this;
-	}
-
-    function prependHtml(HtmlElement $element)
-	{
-        $element->setLevel(($this->level + 1));
-        $element->setParent($this);
-
-        array_unshift($this->childrens, $element);
-        return $element;
-	}
-
-    function prependCreateHtml(string $type, array $attrs = [])
-	{
-        $result = new HtmlElement($type, $attrs);
-        return $this->prependHtml($result);
-	}
-
-    function prependShortCode(ShortCodeInterface $element) : ShortCodeInterface
-    {
-        return $this->prependHtml($element);
-    }
-
-    function prependCreateShortCode(string $type,
-        array $options = [], array $attrs = []) : ShortCodeInterface
-    {
-        $result = $this->createClassShortCode($type, $options, $attrs);
-        return $this->prependShortCode($result);
-    }
-
-	function html(string $result, bool $escape = true)
+    /**
+     * Clears the array of children and adds one string value
+     *
+     * @param string $value string value
+     * @param bool $escape Removes extra garbage from a string
+     *
+     * @return HtmlElement Returns the current class instance
+     */
+	function html(string $result, bool $escape = true) : HtmlElement
 	{
         if($escape)
         {
@@ -190,82 +300,12 @@ class HtmlElement
         return $this;
 	}
 
-    function append(string $result, bool $escape = true)
-	{
-        if($escape)
-        {
-            $result = $this->escape($result);
-        }
-
-        array_push($this->childrens, $result);
-        return $this;
-	}
-
-	function appendHtml(HtmlElement $element)
-	{
-        $element->setLevel(($this->level + 1));
-        $element->setParent($this);
-
-        array_push($this->childrens, $element);
-        return $element;
-	}
-
-    function appendCreateHtml(string $type, array $attrs = [])
-	{
-        $result = new HtmlElement($type, $attrs);
-        return $this->appendHtml($result);
-	}
-
-    function appendShortCode(ShortCodeInterface $element) : ShortCodeInterface
-    {
-        return $this->appendHtml($element);
-    }
-
-    function appendCreateShortCode(string $type,
-        array $options = [], array $attrs = []) : ShortCodeInterface
-    {
-        $result = $this->createClassShortCode($type, $options, $attrs);
-        return $this->appendShortCode($result);
-    }
-
-	function after(string $result, bool $escape = true)
-	{
-        if($escape)
-        {
-            $result = $this->escape($result);
-        }
-
-        array_push($this->after, $result);
-        return $this;
-	}
-
-    function afterHtml(HtmlElement $element)
-	{
-        $element->setLevel($this->level);
-        $element->setParent($this);
-
-        array_push($this->after, $element);
-        return $element;
-	}
-
-    function afterCreateHtml(string $type, array $attrs = [])
-	{
-        $result = new HtmlElement($type, $attrs);
-        return $this->afterHtml($result);
-	}
-
-    function afterShortCode(ShortCodeInterface $element) : ShortCodeInterface
-    {
-        return $this->appendHtml($element);
-    }
-
-    function afterCreateShortCode(string $type,
-        array $options = [], array $attrs = []) : ShortCodeInterface
-    {
-        $result = $this->createClassShortCode($type, $options, $attrs);
-        return $this->afterHtml($result);
-    }
-
+    /**
+     * Removes the current HtmlElement class from the parent element
+     *
+     * @return bool true Current class removed successfully
+     * @return bool false The current class has no parent
+     */
     function remove() : bool
     {
         if(!$this->parent instanceof HtmlElement)
@@ -276,6 +316,14 @@ class HtmlElement
         return $this->parent->removeChild($this);
     }
 
+    /**
+     * Removes the passed HtmlElement class from the list of child elements
+     *
+     * @param HtmlElement $element The class to be removed
+     *
+     * @return bool true Passed class removed successfully
+     * @return bool false The passed class was not found in the list of child elements
+     */
     function removeChild(HtmlElement $element) : bool
     {
         if(!$this->hasChildElement($element))
@@ -294,11 +342,27 @@ class HtmlElement
         return false;
     }
 
+    /**
+     * Looks for the passed class in the list of child elements
+     *
+     * @param HtmlElement $element Element to find
+     *
+     * @return bool true Passed class found
+     * @return bool false Passed class not found
+     */
     function hasChildElement(HtmlElement $element) : bool
     {
         return in_array($element, $this->childrens, true);
     }
 
+    /**
+     * Replacing the current HtmlElement class with the passed one
+     *
+     * @param HtmlElement $newChild Element to replace
+     *
+     * @return bool true Replacement completed successfully
+     * @return bool false The current element has no parent
+     */
     function replace(HtmlElement $newChild) : bool
     {
         if(!$this->parent instanceof HtmlElement)
@@ -309,6 +373,16 @@ class HtmlElement
         return $this->parent->replaceChild($newChild, $this);
     }
 
+    /**
+     * Replaces an instance of the HtmlElement class in a list of child elements
+     *
+     * @param HtmlElement $newChild New element to replace
+     * @param HtmlElement $oldChild Current replacement element
+     *
+     * @return bool true Replacement completed successfully
+     * @return bool false Current element not found in child elements
+     * @return bool false The new element already exists in the list of children
+     */
     function replaceChild(HtmlElement $newChild, HtmlElement $oldChild) : bool
     {
         if(!$this->hasChildElement($oldChild))
@@ -337,7 +411,14 @@ class HtmlElement
         return false;
     }
 
-    function setCommentBefore(string $value)
+    /**
+     * Adds an html comment before the current element
+     *
+     * @param string $value Comment value
+     *
+     * @return HtmlElement Returns the current class instance
+     */
+    function setCommentBefore(string $value) : HtmlElement
     {
         if($args = array_slice(func_get_args(), 1))
         {
@@ -348,7 +429,14 @@ class HtmlElement
         return $this;
     }
 
-    function setCommentAfter(string $value)
+    /**
+     * Adds an html comment after the current element
+     *
+     * @param string $value Comment value
+     *
+     * @return HtmlElement Returns the current class instance
+     */
+    function setCommentAfter(string $value) : HtmlElement
     {
         if($args = array_slice(func_get_args(), 1))
         {
@@ -359,6 +447,11 @@ class HtmlElement
         return $this;
     }
 
+    /**
+     * Returns a string representation of the current element
+     *
+     * @return string The string representation of the html element
+     */
     function render() : string
     {
         if(!$tmpl = self::getRender($this->type))
@@ -425,7 +518,7 @@ class HtmlElement
         }
         else
         {
-            $tmpl = str_replace('{body}', null, $tmpl);
+            $tmpl = str_replace('{body}', '', $tmpl);
         }
 
         if(DEBUG && !empty($this->comment_before))
@@ -465,16 +558,33 @@ class HtmlElement
         return (string) $tmpl;
     }
 
+    /**
+     * Returns the event object for the current element
+     *
+     * @param string $name Event name
+     *
+     * @return ObjectEvent Event html class
+     */
     function getObjectEvent(string $name) : ObjectEvent
     {
         return new ObjectEvent($name, $this);
     }
 
+    /**
+     * Returns a string representation of the current element
+     *
+     * @return string The string representation of the html element
+     */
     function __toString() : string
 	{
 		return (string) $this->render();
 	}
 
+    /**
+     * Returns an array of child elements
+     *
+     * @return array Array of child elements
+     */
     function getChildrens() : array
     {
         return $this->childrens;
@@ -510,51 +620,16 @@ class HtmlElement
         return HtmlHelper::loadString($source, $this, $shortcode);
     }
 
+    /**
+     * Removes extra garbage from a string
+     *
+     * @param string $result string value
+     *
+     * @return string cleared string
+     */
     private function escape(string $result) : string
     {
         $result = preg_replace('/[\r\n\t]+/', '', $result);
         return preg_replace('/\s+/u', ' ', $result);
-    }
-
-    private function createClassShortCode(string $type,
-        array $options = [], array $attrs = []) : ShortCodeInterface
-    {
-        if(!HtmlHelper::hasShortCode($type))
-        {
-            throw new ShortCodeNotFound($type);
-        }
-
-        $class = HtmlHelper::getShortCode($type);
-
-        if(!class_exists($class))
-        {
-            throw new ShortCodeClassNotFound($class);
-        }
-
-        $tagname = HtmlHelper::SHORTCODE_DEFAULT_TAGNAME;
-
-        if(!empty($options['tagname']))
-        {
-            $tagname = $options['tagname'];
-        }
-
-        $result = new $class($tagname, $attrs);
-
-        if(!$result instanceof ShortCodeInterface)
-        {
-            throw new ShortCodeImplement($result);
-        }
-
-        if(!$result instanceof HtmlElement)
-        {
-            throw new ShortCodeExtends($result);
-        }
-
-        if(!empty($options))
-        {
-            $result->loadOptions($options);
-        }
-
-        return $result;
     }
 }
