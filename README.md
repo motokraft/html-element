@@ -1,4 +1,4 @@
-# Удобная работа с HTML элементами
+# Работа с DOM деревом на PHP
 
 ![Package version](https://img.shields.io/github/v/release/motokraft/html-element)
 ![Total Downloads](https://img.shields.io/packagist/dt/motokraft/html-element)
@@ -32,12 +32,26 @@ $ php composer require motokraft/html-element
 require __DIR__ . '/vendor/autoload.php';
 ```
 
-## Примеры инициализации
+## Константа "DEBUG"
+Эта константа определяет построение DOM дерева. Не забудьте определить эту константу в своем приложении.
+
+```php
+define('DEBUG', true);// Учитываются уровни вложенности html-элементов
+define('DEBUG', false);// Однострочный вывод без разрывов строк
+```
+
+## Пример инициализации
 
 ```php
 use \Motokraft\HtmlElement\HtmlElement;
+
 $div = new HtmlElement('div');
+echo $div;// <div></div>
 ```
+
+## Документация
+
+Перейдите на страницу [**Wiki**](https://github.com/motokraft/html-element/wiki) что бы получить подробную документацию об использовании библиотеки с примерами.
 
 ## Лицензия
 
