@@ -480,6 +480,22 @@ class HtmlElement
         return $this->childrens;
     }
 
+    /**
+     * Parses an HTML document from a file
+     *
+     * @param string $filepath Full path to the file
+     * @param bool $shortcode Finding and processing shortcode elements in a string
+     *
+     * @return HtmlElement The HtmlElement class to add to
+     * @return bool false The file has an invalid structure
+     *
+     * @exception FileNotFound File not found or not readable
+     */
+    function loadFile(string $filepath, bool $shortcode = true) : bool|HtmlElement
+    {
+        return HtmlHelper::loadFile($filepath, $this, $shortcode);
+    }
+
     private function escape(string $result) : string
     {
         $result = preg_replace('/[\r\n\t]+/', '', $result);
