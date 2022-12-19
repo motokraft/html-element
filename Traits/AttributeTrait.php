@@ -5,14 +5,34 @@
  * @link https://github.com/motokraft/html-element
  */
 
-use \Motokraft\HtmlElement\Attributes\BaseAttribute;
 use \Motokraft\HtmlElement\HtmlHelper;
+use \Motokraft\HtmlElement\Attributes\BaseAttribute;
 use \Motokraft\HtmlElement\Exception\AttributeClassNotFound;
 use \Motokraft\HtmlElement\Exception\AttributeExtends;
 
+/**
+ *
+ * Implements an API interface for working with attributes
+ *
+ */
+
 trait AttributeTrait
 {
-    function loadAttributes(array $attrs)
+    /**
+     * Contains an array of attributes
+     *
+     * @var array<string, Attributes\BaseAttribute>
+     */
+    private array $attrs = [];
+
+    /**
+     * Adds attributes in an array
+     *
+     * @param array<name, value> $attrs Array of attributes
+     *
+     * @return void
+     */
+    function loadAttributes(array $attrs) : void
     {
         foreach($attrs as $name => $value)
         {
@@ -47,6 +67,14 @@ trait AttributeTrait
         }
     }
 
+    /**
+     * Adds one attribute
+     *
+     * @param string $name Attribute name
+     * @param mixed $value Attribute value
+     *
+     * @return BaseAttribute Single attribute class
+     */
     function addAttribute(string $name, $value = null) : BaseAttribute
     {
         if(!$class = HtmlHelper::getAttribute($name))
@@ -70,7 +98,15 @@ trait AttributeTrait
         return $result;
     }
 
-    function getAttribute(string $name)
+    /**
+     * Returns an attribute class by name
+     *
+     * @param string $name Attribute name
+     *
+     * @return BaseAttribute Single attribute class
+     * @return bool false Attribute not found
+     */
+    function getAttribute(string $name) : bool|BaseAttribute
     {
         if(!$this->hasAttribute($name))
         {
@@ -80,6 +116,14 @@ trait AttributeTrait
         return $this->attrs[$name];
     }
 
+    /**
+     * Removes an attribute class by name
+     *
+     * @param string $name Attribute name
+     *
+     * @return bool true Attribute removed successfully
+     * @return bool false Attribute not found
+     */
     function removeAttribute(string $name) : bool
     {
         if(!$this->hasAttribute($name))
@@ -91,36 +135,86 @@ trait AttributeTrait
         return true;
     }
 
+    /**
+     * Checks for the existence of an attribute by name
+     *
+     * @param string $name Attribute name
+     *
+     * @return bool true Attribute exists
+     * @return bool false Attribute not found
+     */
     function hasAttribute(string $name) : bool
     {
         return isset($this->attrs[$name]);
     }
 
+    /**
+     * Returns an array of attributes
+     *
+     * @return array Array of attributes
+     */
     function getAttributes() : array
     {
         return $this->attrs;
     }
 
+    /**
+     * Adds one data attribute
+     *
+     * @param string $name Attribute name
+     * @param mixed $value Attribute value
+     *
+     * @return BaseAttribute Single attribute class
+     */
     function addAttrData(string $name, $value = null) : BaseAttribute
     {
         return $this->addAttribute('data-' . $name, $value);
     }
 
-    function getAttrData(string $name, $value = null)
+    /**
+     * Returns the attribute's data class by name
+     *
+     * @param string $name Attribute name
+     *
+     * @return BaseAttribute Single attribute class
+     * @return bool false Attribute not found
+     */
+    function getAttrData(string $name, $value = null) : bool|BaseAttribute
     {
         return $this->getAttribute('data-' . $name, $value);
     }
 
+    /**
+     * Removes the attribute's data class by name
+     *
+     * @param string $name Attribute name
+     *
+     * @return bool true Attribute removed successfully
+     * @return bool false Attribute not found
+     */
     function removeAttrData(string $name) : bool
     {
         return $this->removeAttribute('data-' . $name);
     }
 
+    /**
+     * Checks for the presence of a data attribute by name
+     *
+     * @param string $name Attribute name
+     *
+     * @return bool true Attribute exists
+     * @return bool false Attribute not found
+     */
     function hasAttrData(string $name) : bool
     {
         return $this->hasAttribute('data-' . $name);
     }
 
+    /**
+     * Returns an array of data attributes
+     *
+     * @return array Array of data attributes
+     */
     function getAttrsData() : array
     {
         $filter_attr = function (BaseAttribute $attr)
@@ -132,26 +226,63 @@ trait AttributeTrait
         return array_filter($this->attrs, $filter_attr);
     }
 
+    /**
+     * Adds one aria attribute
+     *
+     * @param string $name Attribute name
+     * @param mixed $value Attribute value
+     *
+     * @return BaseAttribute Single attribute class
+     */
     function addAttrAria(string $name, $value = null) : BaseAttribute
     {
         return $this->addAttribute('aria-' . $name, $value);
     }
 
-    function getAttrAria(string $name, $value = null)
+    /**
+     * Returns the attribute's aria class by name
+     *
+     * @param string $name Attribute name
+     *
+     * @return BaseAttribute Single attribute class
+     * @return bool false Attribute not found
+     */
+    function getAttrAria(string $name, $value = null) : bool|BaseAttribute
     {
         return $this->getAttribute('aria-' . $name, $value);
     }
 
+    /**
+     * Removes the attribute's aria class by name
+     *
+     * @param string $name Attribute name
+     *
+     * @return bool true Attribute removed successfully
+     * @return bool false Attribute not found
+     */
     function removeAttrAria(string $name) : bool
     {
         return $this->removeAttribute('aria-' . $name);
     }
 
+    /**
+     * Checks for the presence of a aria attribute by name
+     *
+     * @param string $name Attribute name
+     *
+     * @return bool true Attribute exists
+     * @return bool false Attribute not found
+     */
     function hasAttrAria(string $name) : bool
     {
         return $this->hasAttribute('aria-' . $name);
     }
 
+    /**
+     * Returns an array of aria attributes
+     *
+     * @return array Array of aria attributes
+     */
     function getAttrsAria() : array
     {
         $filter_attr = function (BaseAttribute $attr)

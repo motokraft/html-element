@@ -10,6 +10,13 @@ use \Motokraft\HtmlElement\HtmlHelper;
 
 trait StyleTrait
 {
+    /**
+     * Contains array of styles
+     *
+     * @var array<string, Styles\BaseStyle>
+     */
+    private array $styles = [];
+
     function addStyle(string $name) : BaseStyle
     {
         if(!$class = HtmlHelper::getStyle($name))

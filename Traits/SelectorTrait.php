@@ -5,18 +5,33 @@
  * @link https://github.com/motokraft/html-element
  */
 
+use \Motokraft\HtmlElement\HtmlElement;
+use \Motokraft\HtmlElement\HtmlElementList;
 use \Motokraft\HtmlElement\Iterator\HtmlChildrenIterator;
 use \Motokraft\HtmlElement\Iterator\HtmlParentIterator;
+use \Motokraft\HtmlElement\Iterator\HtmlSiblingIterator;
 use \Motokraft\HtmlElement\Iterator\Filter\IdIterator;
 use \Motokraft\HtmlElement\Iterator\Filter\ClassIterator;
 use \Motokraft\HtmlElement\Iterator\Filter\NameIterator;
 use \Motokraft\HtmlElement\Iterator\Filter\TagNameIterator;
 use \Motokraft\HtmlElement\Iterator\Filter\AttributeIterator;
-use \Motokraft\HtmlElement\HtmlElementList;
+
+/**
+ *
+ * Implements an API for traversing the DOM tree of html elements
+ *
+ */
 
 trait SelectorTrait
 {
-    function getFirstElement() : bool|static
+    /**
+     * Returns the first child element of the parent class
+     *
+     * @return HtmlElement HTML element
+     * @return bool false The current element has no parent
+     * @return bool false Parent element has no children
+     */
+    function getFirstElement() : bool|HtmlElement
     {
         if(!$parent = $this->getParent())
         {
@@ -31,7 +46,14 @@ trait SelectorTrait
         return reset($items);
     }
 
-    function getPrevElement() : bool|static
+    /**
+     * Returns the previous element from the current
+     *
+     * @return HtmlElement HTML element
+     * @return bool false The current element has no parent
+     * @return bool false Parent element has no children
+     */
+    function getPrevElement() : bool|HtmlElement
     {
         if(!$parent = $this->getParent())
         {
@@ -59,7 +81,14 @@ trait SelectorTrait
         return false;
     }
 
-    function getNextElement() : bool|static
+    /**
+     * Returns the next element from the current
+     *
+     * @return HtmlElement HTML element
+     * @return bool false The current element has no parent
+     * @return bool false Parent element has no children
+     */
+    function getNextElement() : bool|HtmlElement
     {
         if(!$parent = $this->getParent())
         {
@@ -87,7 +116,14 @@ trait SelectorTrait
         return false;
     }
 
-    function getLastElement() : bool|static
+    /**
+     * Returns the last child of the parent class
+     *
+     * @return HtmlElement HTML element
+     * @return bool false The current element has no parent
+     * @return bool false Parent element has no children
+     */
+    function getLastElement() : bool|HtmlElement
     {
         if(!$parent = $this->getParent())
         {
@@ -102,67 +138,141 @@ trait SelectorTrait
         return end($items);
     }
 
-    function getElementById(string $id) : bool|static
+    /**
+     * Returns the child html element according to the value of the id attribute
+     *
+     * @param string $id Id attribute value
+     *
+     * @return HtmlElement HTML element
+     * @return bool false HTML element not found
+     */
+    function getElementById(string $id) : bool|HtmlElement
     {
         $iterator = new HtmlChildrenIterator($this);
         return $this->_getById($iterator, $id);
     }
 
-    function getElementByName(string $name) : bool|static
+    /**
+     * Returns the child html element according to the value of the name attribute
+     *
+     * @param string $id Name attribute value
+     *
+     * @return HtmlElement HTML element
+     * @return bool false HTML element not found
+     */
+    function getElementByName(string $name) : bool|HtmlElement
     {
         $iterator = new HtmlChildrenIterator($this);
         return $this->_getByName($iterator, $name);
     }
 
+    /**
+     * Returns child html elements that have the specified class
+     *
+     * @param string $class Class attribute value
+     *
+     * @return HtmlElementList Collection of html elements
+     */
     function getElementByClassName(string $class) : HtmlElementList
     {
         $iterator = new HtmlChildrenIterator($this);
         return $this->_getByClassName($iterator, $class);
     }
 
+    /**
+     * Returns the child html elements according to the given tag
+     *
+     * @param string $tag Tag html element
+     *
+     * @return HtmlElementList Collection of html elements
+     */
     function getElementByTagName(string $tag) : HtmlElementList
     {
         $iterator = new HtmlChildrenIterator($this);
         return $this->_getByTagName($iterator, $tag);
     }
 
+    /**
+     * Returns the child html elements with the specified attribute name
+     *
+     * @param string $attr Attribute name html element
+     *
+     * @return HtmlElementList Collection of html elements
+     */
     function getElementByAttr(string $attr) : HtmlElementList
     {
         $iterator = new HtmlChildrenIterator($this);
         return $this->_getByAttribute($iterator, $attr);
     }
 
-    function getClosestById(string $id) : bool|static
+    /**
+     * Returns the nearest parent html element according to the value of the id attribute
+     *
+     * @param string $id Id attribute value
+     *
+     * @return HtmlElement HTML element
+     * @return bool false HTML element not found
+     */
+    function getClosestById(string $id) : bool|HtmlElement
     {
         $iterator = new HtmlParentIterator($this);
         return $this->_getById($iterator, $id);
     }
 
-    function getClosestByName(string $name) : bool|static
+    /**
+     * Returns the parent html element according to the value of the name attribute
+     *
+     * @param string $id Name attribute value
+     *
+     * @return HtmlElement HTML element
+     * @return bool false HTML element not found
+     */
+    function getClosestByName(string $name) : bool|HtmlElement
     {
         $iterator = new HtmlParentIterator($this);
         return $this->_getByName($iterator, $name);
     }
 
+    /**
+     * Returns parent html elements that have the specified class
+     *
+     * @param string $class Class attribute value
+     *
+     * @return HtmlElementList Collection of html elements
+     */
     function getClosestByClassName(string $class) : HtmlElementList
     {
         $iterator = new HtmlParentIterator($this);
         return $this->_getByClassName($iterator, $class);
     }
 
+    /**
+     * Returns the parent html elements according to the given tag
+     *
+     * @param string $tag Tag html element
+     *
+     * @return HtmlElementList Collection of html elements
+     */
     function getClosestByTagName(string $tag) : HtmlElementList
     {
         $iterator = new HtmlParentIterator($this);
         return $this->_getByTagName($iterator, $tag);
     }
 
+    /**
+     * Returns the parent html elements with the specified attribute name
+     *
+     * @param string $attr Attribute name html element
+     *
+     * @return HtmlElementList Collection of html elements
+     */
     function getClosestByAttr(string $attr) : HtmlElementList
     {
         $iterator = new HtmlParentIterator($this);
         return $this->_getByAttribute($iterator, $attr);
     }
 
-    private function _getById(\RecursiveIterator $iterator, string $id) : bool|static
+    private function _getById(\Iterator $iterator, string $id) : bool|HtmlElement
     {
         $result = new IdIterator($iterator, $id);
         $result->rewind();
@@ -175,7 +285,7 @@ trait SelectorTrait
         return $result;
     }
 
-    private function _getByName(\RecursiveIterator $iterator, string $name) : bool|static
+    private function _getByName(\Iterator $iterator, string $name) : bool|HtmlElement
     {
         $result = new NameIterator($iterator, $name);
         $result->rewind();
@@ -188,19 +298,19 @@ trait SelectorTrait
         return $result;
     }
 
-    private function _getByClassName(\RecursiveIterator $iterator, string $class) : HtmlElementList
+    private function _getByClassName(\Iterator $iterator, string $class) : HtmlElementList
     {
         $items = new ClassIterator($iterator, $class);
         return new HtmlElementList($items);
     }
 
-    private function _getByTagName(\RecursiveIterator $iterator, string $tag) : HtmlElementList
+    private function _getByTagName(\Iterator $iterator, string $tag) : HtmlElementList
     {
         $items = new TagNameIterator($iterator, $tag);
         return new HtmlElementList($items);
     }
 
-    private function _getByAttribute(\RecursiveIterator $iterator, string $attr) : HtmlElementList
+    private function _getByAttribute(\Iterator $iterator, string $attr) : HtmlElementList
     {
         $items = new AttributeIterator($iterator, $attr);
         return new HtmlElementList($items);

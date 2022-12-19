@@ -5,8 +5,18 @@
  * @link https://github.com/motokraft/html-element
  */
 
+/**
+ *
+ * Implements an API interface for string output
+ *
+ */
+
 trait RenderTrait
 {
+    /**
+     * Array of output templates for standard HTML elements
+     *
+     */
     protected static $render = [
         'meta' => '<{type}{attrs}>',
         'title' => '<{type}>{body}</{type}>',
@@ -18,7 +28,14 @@ trait RenderTrait
         '_default' => '<{type}{attrs}>{body}</{type}>'
     ];
 
-    static function addRenders(array $items)
+    /**
+     * Adds an array of html element output templates
+     *
+     * @param array<name, template> $items Array of output templates
+     *
+     * @return void
+     */
+    static function addRenders(array $items) : void
     {
         foreach($items as $type => $tmpl)
         {
@@ -26,22 +43,46 @@ trait RenderTrait
         }
     }
 
-    static function addRender(string $name, $value)
+    /**
+     * Adds an html element output template
+     *
+     * @param string $name HTML element tag name
+     * @param string $value HTML element output template
+     *
+     * @return void
+     */
+    static function addRender(string $name, string $value) : void
     {
         static::$render[$name] = $value;
     }
 
-    static function getRender(string $name, $default = null)
+    /**
+     * Returns the output template of the html element
+     *
+     * @param string $name HTML element tag name
+     *
+     * @return string HTML element output template
+     * @return bool false Element html tag not found
+     */
+    static function getRender(string $name) : bool|string
     {
         if(!static::hasRender($name))
         {
-            return $default;
+            return false;
         }
 
         return static::$render[$name];
     }
 
-    static function removeRender(string $name)
+    /**
+     * Removes the html element's output template
+     *
+     * @param string $name HTML element tag name
+     *
+     * @return bool true Output template deleted successfully
+     * @return bool false Output template not found
+     */
+    static function removeRender(string $name) : bool
     {
         if(!static::hasRender($name))
         {
@@ -52,7 +93,15 @@ trait RenderTrait
         return true;
     }
 
-    static function hasRender(string $name)
+    /**
+     * Checks for the presence of an html element output template
+     *
+     * @param string $name HTML element tag name
+     *
+     * @return bool true HTML element output template exists
+     * @return bool false HTML element output template not found
+     */
+    static function hasRender(string $name) : bool
     {
         return isset(static::$render[$name]);
     }
