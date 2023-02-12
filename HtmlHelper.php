@@ -192,11 +192,11 @@ class HtmlHelper
             $attrs = self::getAttributes($item);
 
             if($result instanceof ShortCodeInterface
-                && ($data = $attrs->getArray()))
+                && ($data = $attrs->getArrayCopy()))
             {
                 $result->loadOptions($data);
             }
-            else if($data = $attrs->getArray())
+            else if($data = $attrs->getArrayCopy())
             {
                 $result->loadAttributes($data);
             }
