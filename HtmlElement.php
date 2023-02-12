@@ -6,7 +6,6 @@
  */
 
 use \Motokraft\HtmlElement\Exception\RenderItemNotFound;
-use \Motokraft\HtmlElement\Event\ObjectEvent;
 
 /**
  *
@@ -70,14 +69,14 @@ class HtmlElement
 
     /**
      *
-     * Реализует API интерфейс для работы со стилями
+     * Implements an API interface for working with styles.
      *
      */
     use Traits\StyleTrait;
 
     /**
      *
-     * Реализует API интерфейс для работы с классами
+     * Implements an API interface for working with classes
      *
      */
     use Traits\ClassTrait;
@@ -503,7 +502,7 @@ class HtmlElement
 
         if($childrens = $this->getChildrens())
         {
-            $separator = null;
+            $separator = '';
 
             if(DEBUG && ($this->type !== 'textarea'))
             {
@@ -556,18 +555,6 @@ class HtmlElement
 		}
 
         return (string) $tmpl;
-    }
-
-    /**
-     * Returns the event object for the current element
-     *
-     * @param string $name Event name
-     *
-     * @return ObjectEvent Event html class
-     */
-    function getObjectEvent(string $name) : ObjectEvent
-    {
-        return new ObjectEvent($name, $this);
     }
 
     /**

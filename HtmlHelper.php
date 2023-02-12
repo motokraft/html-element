@@ -11,16 +11,10 @@ use \Motokraft\HtmlElement\Exception\ShortCodeClassNotFound;
 use \Motokraft\HtmlElement\Exception\AttributeTypeNotFound;
 use \Motokraft\HtmlElement\Exception\ShortCodeImplement;
 use \Motokraft\HtmlElement\Exception\ShortCodeExtends;
-use \Motokraft\HtmlElement\Exception\EventClassNotFound;
-use \Motokraft\HtmlElement\Exception\EventImplement;
-use \Motokraft\HtmlElement\Exception\EventExtends;
 use \Motokraft\HtmlElement\Exception\FileNotFound;
 use \Motokraft\HtmlElement\Object\Attributes;
 use \Motokraft\HtmlElement\Attributes\BaseAttribute;
 use \Motokraft\HtmlElement\Attributes\ClassAttribute;
-use \Motokraft\HtmlElement\Event\ObjectEvent;
-use \Motokraft\HtmlElement\Event\BaseEvent;
-use \Motokraft\HtmlElement\Event\EventInterface;
 
 class HtmlHelper
 {
@@ -39,7 +33,6 @@ class HtmlHelper
 
     private static $styles = [];
     private static $shortcodes = [];
-    private static $events = [];
     private static $classes = [];
 
     static function addAttribute(string $name, string $class)
@@ -164,107 +157,6 @@ class HtmlHelper
     static function hasShortCode(string $name) : bool
     {
         return isset(self::$shortcodes[$name]);
-    }
-
-    static function addEventClass(string $name, string $class)
-    {
-        if(!self::hasEvent($name))
-        {
-            self::$events[$name] = [];
-        }
-
-        array_push(self::$events[$name], $class);
-    }
-
-    static function getEventClasses(string $name) : array
-    {
-        if(!self::hasEvent($name))
-        {
-            return [];
-        }
-
-        return self::$events[$name];
-    }
-
-    static function removeEvent(string $name) : bool
-    {
-        if(!self::hasEvent($name))
-        {
-            return false;
-        }
-
-        unset(self::$events[$name]);
-        return true;
-    }
-
-    static function hasEvent(string $name) : bool
-    {
-        return isset(self::$events[$name]);
-    }
-
-    static function removeEventClass(string $name, string $class) : bool
-    {
-        if(!self::hasEventClass($name, $class))
-        {
-            return false;
-        }
-
-        $_events = self::getEventClasses($name);
-        $key = array_search($class, $_events);
-
-        if($key !== false)
-        {
-            unset($_events[$key]);
-        }
-
-        if(empty($_events))
-        {
-            self::removeEvent($name);
-        }
-        else
-        {
-            $_events = array_values($_events);
-            self::$events[$name] = $_events;
-        }
-
-        return true;
-    }
-
-    static function hasEventClass(string $name, string $class) : bool
-    {
-        return in_array($class, self::getEventClasses($name));
-    }
-
-    static function dispatchEvent(ObjectEvent $event) : bool
-    {
-        $name = (string) $event->getName();
-
-        if(!$_events = self::getEventClasses($name))
-        {
-            return false;
-        }
-
-        $method = $event->getMethodName();
-
-        $filter_event = function (string $class) use (&$method)
-        {
-            $class = self::prepareEvent($class);
-            return method_exists($class, $method);
-        };
-
-        if(!$_events = array_filter($_events, $filter_event))
-        {
-            return false;
-        }
-
-        $map_event = function (string $class) use (&$method, &$event)
-        {
-            $class = self::prepareEvent($class);
-            return $class->{$method}($event);
-        };
-
-        $result = array_map($map_event, $_events);
-        return !in_array(false, $result, true);
     }
 
     static function loadFile(string $filepath, HtmlElement $element, bool $shortcode = true) : HtmlElement
@@ -476,33 +368,5 @@ class HtmlHelper
         }
 
         return new Attributes($attributes);
-    }
-
-    private static function prepareEvent(string $class) : EventInterface
-    {
-        if(isset(self::$classes[$class]))
-        {
-            return self::$classes[$class];
-        }
-
-        if(!class_exists($class))
-        {
-            throw new EventClassNotFound($class);
-        }
-
-        $result = new $class;
-
-        if(!$result instanceof EventInterface)
-        {
-            throw new EventImplement($result);
-        }
-
-        if(!$result instanceof BaseEvent)
-        {
-            throw new EventExtends($result);
-        }
-
-        self::$classes[$class] = $result;
-        return $result;
     }
 }
