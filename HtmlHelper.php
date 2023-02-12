@@ -279,8 +279,7 @@ class HtmlHelper
         return self::loadString($source, $element, $shortcode);
     }
 
-    static function loadString(string $source,
-        ?HtmlElement $element = null, bool $shortcode = true) : bool|HtmlElement
+    static function loadString(string $source, HtmlElement $element, bool $shortcode = true) : HtmlElement
     {
         $source = preg_replace('/[\r\n]+/', '', $source);
         $source = preg_replace('/\s+/u', ' ', $source);
@@ -297,37 +296,26 @@ class HtmlHelper
         $dom->loadHTML($source, LIBXML_HTML_NODEFDTD);
 
         $xpath = new \DOMXPath($dom);
-        $result = $xpath->query('body/*');
-        $child = $result->item(0);
-
-        if(!$child instanceof \DOMElement)
+        
+        foreach($xpath->query('body/*') as $item)
         {
-            return false;
+            $result = $element->appendCreateHtml($item->tagName);
+            $attrs = self::getAttributes($item);
+
+            if($result instanceof ShortCodeInterface
+                && ($data = $attrs->getArray()))
+            {
+                $result->loadOptions($data);
+            }
+            else if($data = $attrs->getArray())
+            {
+                $result->loadAttributes($data);
+            }
+
+            self::parseDOMElement($result, $item, $shortcode);
         }
 
-        if($element instanceof HtmlElement)
-        {
-            $result = $element->appendCreateHtml($child->tagName);
-        }
-        else
-        {
-            $result = new HtmlElement($child->tagName);
-        }
-
-        $attrs = self::getAttributes($child);
-
-        if($result instanceof ShortCodeInterface
-            && ($data = $attrs->getArray()))
-        {
-            $result->loadOptions($data);
-        }
-        else if($data = $attrs->getArray())
-        {
-            $result->loadAttributes($data);
-        }
-
-        self::parseDOMElement($result, $child, $shortcode);
-        return $result;
+        return $element;
     }
 
     static function loadHTML(string $source, HtmlElement $result, bool $shortcode = true)
