@@ -267,16 +267,14 @@ class HtmlHelper
         return !in_array(false, $result, true);
     }
 
-    static function loadFile(string $filepath,
-        ?HtmlElement $element = null, bool $shortcode = true) : bool|HtmlElement
+    static function loadFile(string $filepath, HtmlElement $element, bool $shortcode = true) : HtmlElement
     {
         if(!is_readable($filepath))
         {
             throw new FileNotFound($filepath);
         }
 
-        $source = file_get_contents($filepath);
-        return self::loadString($source, $element, $shortcode);
+        return self::loadString(file_get_contents($filepath), $element, $shortcode);
     }
 
     static function loadString(string $source, HtmlElement $element, bool $shortcode = true) : HtmlElement
