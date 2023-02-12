@@ -12,7 +12,6 @@ use \Motokraft\HtmlElement\Exception\AttributeTypeNotFound;
 use \Motokraft\HtmlElement\Exception\ShortCodeImplement;
 use \Motokraft\HtmlElement\Exception\ShortCodeExtends;
 use \Motokraft\HtmlElement\Exception\FileNotFound;
-use \Motokraft\HtmlElement\Object\Attributes;
 use \Motokraft\HtmlElement\Attributes\BaseAttribute;
 use \Motokraft\HtmlElement\Attributes\ClassAttribute;
 
@@ -35,7 +34,7 @@ class HtmlHelper
     private static $shortcodes = [];
     private static $classes = [];
 
-    static function addAttribute(string $name, string $class)
+    static function addAttribute(string $name, string $class) : void
     {
         self::$attributes[$name] = $class;
     }
@@ -66,7 +65,7 @@ class HtmlHelper
         return isset(self::$attributes[$name]);
     }
 
-    static function addRegexSchortCode(string $pattern, string $replacement)
+    static function addRegexSchortCode(string $pattern, string $replacement) : void
     {
         self::$regex_schortcodes[$pattern] = $replacement;
     }
@@ -97,7 +96,7 @@ class HtmlHelper
         return isset(self::$regex_schortcodes[$pattern]);
     }
 
-    static function addStyle(string $name, string $class)
+    static function addStyle(string $name, string $class) : void
     {
         self::$styles[$name] = $class;
     }
@@ -128,7 +127,7 @@ class HtmlHelper
         return isset(self::$styles[$name]);
     }
 
-    static function addShortCode(string $name, string $class)
+    static function addShortCode(string $name, string $class) : void
     {
         self::$shortcodes[$name] = $class;
     }
@@ -208,7 +207,7 @@ class HtmlHelper
         return $element;
     }
 
-    static function loadHTML(string $source, HtmlElement $result, bool $shortcode = true)
+    static function loadHTML(string $source, HtmlElement $result, bool $shortcode = true) : HtmlElement
     {
         $source = preg_replace('/[\r\n]+/', '', $source);
         $source = preg_replace('/\s+/u', ' ', $source);
@@ -247,16 +246,16 @@ class HtmlHelper
     }
 
     private static function parseDOMElement(
-        HtmlElement $result, \DOMElement $element, bool $shortcode)
+        HtmlElement $result, \DOMElement $element, bool $shortcode) : void
     {
         $attrs = self::getAttributes($element);
 
         if($result instanceof ShortCodeInterface
-            && ($data = $attrs->getArray()))
+            && ($data = $attrs->getArrayCopy()))
         {
             $result->loadOptions($data);
         }
-        else if($data = $attrs->getArray())
+        else if($data = $attrs->getArrayCopy())
         {
             $result->loadAttributes($data);
         }
@@ -358,15 +357,17 @@ class HtmlHelper
         return $result;
     }
 
-    private static function getAttributes(\DOMElement $element)
+    private static function getAttributes(\DOMElement $element) : \ArrayIterator
     {
-        $attributes = [];
+        $length = $element->attributes->length;
+        $result = new \ArrayIterator;
 
-        foreach($element->attributes as $attr)
+        for($i = 0; $i < $length; $i++)
         {
-            $attributes[$attr->name] = $attr->value;
+            $item = $element->attributes->item($i);
+            $result[$item->name] = $item->value;
         }
 
-        return new Attributes($attributes);
+        return $result;
     }
 }
