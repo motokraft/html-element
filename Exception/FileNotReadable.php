@@ -5,17 +5,15 @@
  * @link https://github.com/motokraft/html-element
  */
 
-class FileNotFound extends \Exception
+class FileNotReadable extends \Exception
 {
-    private $filepath;
+    private string $filepath;
 
     function __construct(string $filepath, int $code = 404)
     {
         $this->filepath = $filepath;
 
-        $text = 'File %s not found!';
-        $message = sprintf($text, $filepath);
-
+        $message = sprintf('File %s is not readable!', $filepath);
         parent::__construct($message, $code);
     }
 

@@ -11,7 +11,8 @@ use \Motokraft\HtmlElement\Exception\ShortCodeClassNotFound;
 use \Motokraft\HtmlElement\Exception\AttributeTypeNotFound;
 use \Motokraft\HtmlElement\Exception\ShortCodeImplement;
 use \Motokraft\HtmlElement\Exception\ShortCodeExtends;
-use \Motokraft\HtmlElement\Exception\FileNotFound;
+use \Motokraft\HtmlElement\Exception\FileNotReadable;
+use \Motokraft\HtmlElement\Exception\FileContentEmpty;
 use \Motokraft\HtmlElement\Attributes\BaseAttribute;
 use \Motokraft\HtmlElement\Attributes\ClassAttribute;
 
@@ -158,14 +159,20 @@ class HtmlHelper
         return isset(self::$shortcodes[$name]);
     }
 
-    static function loadFile(string $filepath, HtmlElement $element, bool $shortcode = true) : HtmlElement
+    static function loadFile(string $filepath,
+        HtmlElement $element, bool $shortcode = true) : HtmlElementCollection
     {
         if(!is_readable($filepath))
         {
-            throw new FileNotFound($filepath);
+            throw new FileNotReadable($filepath);
         }
 
-        return self::loadHTML(file_get_contents($filepath), $element, $shortcode);
+        if(!$html = file_get_contents($filepath))
+        {
+            throw new FileContentEmpty($filepath);
+        }
+
+        return self::loadHTML($html, $element, $shortcode);
     }
 
     static function loadHTML(string $source,
