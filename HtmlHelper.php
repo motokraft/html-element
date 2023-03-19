@@ -168,7 +168,8 @@ class HtmlHelper
         return self::loadHTML(file_get_contents($filepath), $element, $shortcode);
     }
 
-    static function loadHTML(string $source, HtmlElement $result, bool $shortcode = true) : HtmlElement
+    static function loadHTML(string $source,
+        HtmlElement $element, bool $shortcode = true) : HtmlElementCollection
     {
         $source = preg_replace('/[\r\n]+/', '', $source);
         $source = preg_replace('/\s+/u', ' ', $source);
@@ -180,14 +181,21 @@ class HtmlHelper
         }
 
         libxml_use_internal_errors(true);
+
         $dom = new \DOMDocument('1.0', 'UTF-8');
-
         $dom->loadHTML($source, LIBXML_HTML_NODEFDTD);
-        $body = $dom->getElementsByTagName('body');
 
-        if($body->item(0) instanceof \DOMElement)
+        $xpath = new \DOMXPath($dom);
+        $query = $xpath->query('body/*');
+
+        $result = new HtmlElementCollection;
+
+        foreach($query as $item)
         {
-            self::parseDOMElement($result, $body->item(0), $shortcode);
+            $el = $element->appendCreateHtml($item->tagName);
+            self::parseDOMElement($el, $item, $shortcode);
+
+            $result->append($el);
         }
 
         return $result;
