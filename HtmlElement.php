@@ -300,22 +300,6 @@ class HtmlElement
 	}
 
     /**
-     * Removes the current HtmlElement class from the parent element
-     *
-     * @return bool true Current class removed successfully
-     * @return bool false The current class has no parent
-     */
-    function remove() : bool
-    {
-        if(!$this->parent instanceof HtmlElement)
-        {
-            return false;
-        }
-
-        return $this->parent->removeChild($this);
-    }
-
-    /**
      * Removes the passed HtmlElement class from the list of child elements
      *
      * @param HtmlElement $element The class to be removed
