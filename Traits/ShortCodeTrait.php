@@ -178,7 +178,7 @@ trait ShortCodeTrait
 
         if(!empty($options))
         {
-            $result->loadOptions($options);
+            $result->loadArray($options);
         }
 
         return $result;

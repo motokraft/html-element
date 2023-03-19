@@ -229,7 +229,7 @@ class HtmlHelper
         if($result instanceof ShortCodeInterface
             && ($data = $attrs->getArrayCopy()))
         {
-            $result->loadOptions($data);
+            $result->loadArray($data);
         }
         else if($data = $attrs->getArrayCopy())
         {
@@ -248,7 +248,9 @@ class HtmlHelper
                     $child_node, $result, $shortcode
                 );
 
-                self::parseDOMElement($child, $child_node, $shortcode);
+                self::parseDOMElement(
+                    $child, $child_node, $shortcode
+                );
             }
         }
     }
