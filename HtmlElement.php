@@ -584,11 +584,11 @@ class HtmlElement
      * @param bool $shortcode Finding and processing shortcode elements in a string
      *
      * @return HtmlElement The HtmlElement class to add to
-     * @return bool false The file has an invalid structure
      *
-     * @exception FileNotFound File not found or not readable
+     * @exception FileNotReadable File not found or not readable
+     * @exception FileContentEmpty File is empty
      */
-    function loadFile(string $filepath, bool $shortcode = true) : bool|HtmlElement
+    function loadFile(string $filepath, bool $shortcode = true) : HtmlElementCollection
     {
         return HtmlHelper::loadFile($filepath, $this, $shortcode);
     }
@@ -600,11 +600,10 @@ class HtmlElement
      * @param bool $shortcode Finding and processing shortcode elements in a string
      *
      * @return HtmlElement The HtmlElement class to add to
-     * @return bool false The string has an invalid structure.
      */
-    function loadString(string $source, bool $shortcode = true) : bool|HtmlElement
+    function loadHTML(string $source, bool $shortcode = true) : HtmlElementCollection
     {
-        return HtmlHelper::loadString($source, $this, $shortcode);
+        return HtmlHelper::loadHTML($source, $this, $shortcode);
     }
 
     /**
