@@ -165,46 +165,7 @@ class HtmlHelper
             throw new FileNotFound($filepath);
         }
 
-        return self::loadString(file_get_contents($filepath), $element, $shortcode);
-    }
-
-    static function loadString(string $source, HtmlElement $element, bool $shortcode = true) : HtmlElement
-    {
-        $source = preg_replace('/[\r\n]+/', '', $source);
-        $source = preg_replace('/\s+/u', ' ', $source);
-        $source = mb_convert_encoding($source, 'HTML-ENTITIES', 'UTF-8');
-
-        if($shortcode)
-        {
-            $source = self::parseShortCode($source);
-        }
-
-        libxml_use_internal_errors(true);
-
-        $dom = new \DOMDocument('1.0', 'UTF-8');
-        $dom->loadHTML($source, LIBXML_HTML_NODEFDTD);
-
-        $xpath = new \DOMXPath($dom);
-        
-        foreach($xpath->query('body/*') as $item)
-        {
-            $result = $element->appendCreateHtml($item->tagName);
-            $attrs = self::getAttributes($item);
-
-            if($result instanceof ShortCodeInterface
-                && ($data = $attrs->getArrayCopy()))
-            {
-                $result->loadOptions($data);
-            }
-            else if($data = $attrs->getArrayCopy())
-            {
-                $result->loadAttributes($data);
-            }
-
-            self::parseDOMElement($result, $item, $shortcode);
-        }
-
-        return $element;
+        return self::loadHTML(file_get_contents($filepath), $element, $shortcode);
     }
 
     static function loadHTML(string $source, HtmlElement $result, bool $shortcode = true) : HtmlElement
