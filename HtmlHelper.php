@@ -256,49 +256,51 @@ class HtmlHelper
     private static function createChildElement(
         \DOMElement $child, HtmlElement $html, bool $shortcode) : HtmlElement
     {
-        if($shortcode)
+        if(!$shortcode)
         {
-            if($child->tagName === 'shortcode')
+            return $html->appendCreateHtml($child->tagName);
+        }
+
+        if($child->tagName === 'shortcode')
+        {
+            if(!$type = $child->getAttribute('type'))
             {
-                if(!$type = $child->getAttribute('type'))
-                {
-                    throw new AttributeTypeNotFound($child);
-                }
-
-                if(!$tagname = $child->getAttribute('tagname'))
-                {
-                    $tagname = self::SHORTCODE_DEFAULT_TAGNAME;
-                }
-
-                $child->removeAttribute('type');
-                $child->removeAttribute('tagname');
-
-                return self::createShortCode($type, $tagname, $html);
+                throw new AttributeTypeNotFound($child);
             }
-            else if($type = $child->getAttribute('shortcode'))
+
+            if(!$tagname = $child->getAttribute('tagname'))
             {
-                if(!$tagname = $child->getAttribute('tagname'))
-                {
-                    $tagname = $child->tagName;
-                }
-
-                $child->removeAttribute('shortcode');
-                return self::createShortCode($type, $tagname, $html);
+                $tagname = self::SHORTCODE_DEFAULT_TAGNAME;
             }
-            else if($child->getAttribute('type') === 'shortcode')
+
+            $child->removeAttribute('type');
+            $child->removeAttribute('tagname');
+
+            return self::createShortCode($type, $tagname, $html);
+        }
+        else if($type = $child->getAttribute('shortcode'))
+        {
+            if(!$tagname = $child->getAttribute('tagname'))
             {
-                $type = $child->getAttribute('name');
-
-                if(!$tagname = $child->getAttribute('tagname'))
-                {
-                    $tagname = $child->tagName;
-                }
-
-                $child->removeAttribute('type');
-                $child->removeAttribute('name');
-
-                return self::createShortCode($type, $tagname, $html);
+                $tagname = $child->tagName;
             }
+
+            $child->removeAttribute('shortcode');
+            return self::createShortCode($type, $tagname, $html);
+        }
+        else if($child->getAttribute('type') === 'shortcode')
+        {
+            $type = $child->getAttribute('name');
+
+            if(!$tagname = $child->getAttribute('tagname'))
+            {
+                $tagname = $child->tagName;
+            }
+
+            $child->removeAttribute('type');
+            $child->removeAttribute('name');
+
+            return self::createShortCode($type, $tagname, $html);
         }
 
         return $html->appendCreateHtml($child->tagName);
