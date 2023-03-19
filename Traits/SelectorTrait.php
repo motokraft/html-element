@@ -6,7 +6,7 @@
  */
 
 use \Motokraft\HtmlElement\HtmlElement;
-use \Motokraft\HtmlElement\HtmlElementList;
+use \Motokraft\HtmlElement\HtmlElementCollection;
 use \Motokraft\HtmlElement\Iterator\HtmlChildrenIterator;
 use \Motokraft\HtmlElement\Iterator\HtmlParentIterator;
 use \Motokraft\HtmlElement\Iterator\HtmlSiblingIterator;
@@ -171,9 +171,9 @@ trait SelectorTrait
      *
      * @param string $class Class attribute value
      *
-     * @return HtmlElementList Collection of html elements
+     * @return HtmlElementCollection Collection of html elements
      */
-    function getElementByClassName(string $class) : HtmlElementList
+    function getElementByClassName(string $class) : HtmlElementCollection
     {
         $iterator = new HtmlChildrenIterator($this);
         return $this->_getByClassName($iterator, $class);
@@ -184,9 +184,9 @@ trait SelectorTrait
      *
      * @param string $tag Tag html element
      *
-     * @return HtmlElementList Collection of html elements
+     * @return HtmlElementCollection Collection of html elements
      */
-    function getElementByTagName(string $tag) : HtmlElementList
+    function getElementByTagName(string $tag) : HtmlElementCollection
     {
         $iterator = new HtmlChildrenIterator($this);
         return $this->_getByTagName($iterator, $tag);
@@ -197,9 +197,9 @@ trait SelectorTrait
      *
      * @param string $attr Attribute name html element
      *
-     * @return HtmlElementList Collection of html elements
+     * @return HtmlElementCollection Collection of html elements
      */
-    function getElementByAttr(string $attr) : HtmlElementList
+    function getElementByAttr(string $attr) : HtmlElementCollection
     {
         $iterator = new HtmlChildrenIterator($this);
         return $this->_getByAttribute($iterator, $attr);
@@ -238,9 +238,9 @@ trait SelectorTrait
      *
      * @param string $class Class attribute value
      *
-     * @return HtmlElementList Collection of html elements
+     * @return HtmlElementCollection Collection of html elements
      */
-    function getClosestByClassName(string $class) : HtmlElementList
+    function getClosestByClassName(string $class) : HtmlElementCollection
     {
         $iterator = new HtmlParentIterator($this);
         return $this->_getByClassName($iterator, $class);
@@ -251,9 +251,9 @@ trait SelectorTrait
      *
      * @param string $tag Tag html element
      *
-     * @return HtmlElementList Collection of html elements
+     * @return HtmlElementCollection Collection of html elements
      */
-    function getClosestByTagName(string $tag) : HtmlElementList
+    function getClosestByTagName(string $tag) : HtmlElementCollection
     {
         $iterator = new HtmlParentIterator($this);
         return $this->_getByTagName($iterator, $tag);
@@ -264,9 +264,9 @@ trait SelectorTrait
      *
      * @param string $attr Attribute name html element
      *
-     * @return HtmlElementList Collection of html elements
+     * @return HtmlElementCollection Collection of html elements
      */
-    function getClosestByAttr(string $attr) : HtmlElementList
+    function getClosestByAttr(string $attr) : HtmlElementCollection
     {
         $iterator = new HtmlParentIterator($this);
         return $this->_getByAttribute($iterator, $attr);
@@ -298,21 +298,21 @@ trait SelectorTrait
         return $result;
     }
 
-    private function _getByClassName(\Iterator $iterator, string $class) : HtmlElementList
+    private function _getByClassName(\Iterator $iterator, string $class) : HtmlElementCollection
     {
-        $items = new ClassIterator($iterator, $class);
-        return new HtmlElementList($items);
+        $iterator = new ClassIterator($iterator, $class);
+        return new HtmlElementCollection($iterator->getArray());
     }
 
-    private function _getByTagName(\Iterator $iterator, string $tag) : HtmlElementList
+    private function _getByTagName(\Iterator $iterator, string $tag) : HtmlElementCollection
     {
-        $items = new TagNameIterator($iterator, $tag);
-        return new HtmlElementList($items);
+        $iterator = new TagNameIterator($iterator, $tag);
+        return new HtmlElementCollection($iterator->getArray());
     }
 
-    private function _getByAttribute(\Iterator $iterator, string $attr) : HtmlElementList
+    private function _getByAttribute(\Iterator $iterator, string $attr) : HtmlElementCollection
     {
-        $items = new AttributeIterator($iterator, $attr);
-        return new HtmlElementList($items);
+        $iterator = new AttributeIterator($iterator, $attr);
+        return new HtmlElementCollection($iterator->getArray());
     }
 }
