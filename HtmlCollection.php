@@ -14,7 +14,7 @@ use \Motokraft\Object\Collection;
  *
  */
 
-class HtmlElementCollection extends Collection
+class HtmlCollection extends Collection
 {   
     /**
      * Adds the specified class to all elements in the collection
@@ -25,10 +25,9 @@ class HtmlElementCollection extends Collection
      */
     function addClass(string $value) : void
     {
-        foreach($this as $item)
-        {
-            $item->addClass($value);
-        }
+        $this->each(
+            fn($item) => $item->addClass($value)
+        );
     }
 
     /**
@@ -41,10 +40,9 @@ class HtmlElementCollection extends Collection
      */
     function addAttribute(string $name, $value) : void
     {
-        foreach($this as $item)
-        {
-            $item->addAttribute($name, $value);
-        }
+        $this->each(
+            fn($item) => $item->addAttribute($name, $value)
+        );
     }
 
     /**

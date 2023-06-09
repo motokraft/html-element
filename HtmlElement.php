@@ -574,7 +574,7 @@ class HtmlElement
      * @exception FileNotReadable File not found or not readable
      * @exception FileContentEmpty File is empty
      */
-    function loadFile(string $filepath, bool $shortcode = true) : HtmlElementCollection
+    function loadFile(string $filepath, bool $shortcode = true) : HtmlCollection
     {
         return HtmlHelper::loadFile($filepath, $this, $shortcode);
     }
@@ -587,7 +587,7 @@ class HtmlElement
      *
      * @return HtmlElement The HtmlElement class to add to
      */
-    function loadHTML(string $source, bool $shortcode = true) : HtmlElementCollection
+    function loadHTML(string $source, bool $shortcode = true) : HtmlCollection
     {
         return HtmlHelper::loadHTML($source, $this, $shortcode);
     }

@@ -237,7 +237,7 @@ class HtmlHelper
     }
 
     static function loadFile(string $filepath,
-        HtmlElement $element, bool $shortcode = true) : HtmlElementCollection
+        HtmlElement $element, bool $shortcode = true) : HtmlCollection
     {
         if(!is_readable($filepath))
         {
@@ -253,7 +253,7 @@ class HtmlHelper
     }
 
     static function loadHTML(string $source,
-        HtmlElement $element, bool $shortcode = true) : HtmlElementCollection
+        HtmlElement $element, bool $shortcode = true) : HtmlCollection
     {
         $source = preg_replace('/[\r\n]+/', '', $source);
         $source = preg_replace('/\s+/u', ' ', $source);
@@ -272,7 +272,7 @@ class HtmlHelper
         $xpath = new \DOMXPath($dom);
         $query = $xpath->query('body/*');
 
-        $result = new HtmlElementCollection;
+        $result = new HtmlCollection;
 
         foreach($query as $item)
         {
