@@ -123,7 +123,7 @@ class HtmlElement
      *
      * @var null|HtmlElement
      */
-    private ?self $parent = null;
+    private ?HtmlElement $parent = null;
 
     /**
      * Contains an array of child elements
@@ -163,7 +163,10 @@ class HtmlElement
             throw new \Exception('Item type required!');
         }
 
+        $this->attrs = new Collection;
         $this->styles = new Collection;
+
+        $this->type = $type;
 
         if(!empty($attrs))
         {
@@ -176,12 +179,11 @@ class HtmlElement
      *
      * @param string $type Contains the element's html tag
      *
-     * @return HtmlElement Returns the current class instance
+     * @return void
      */
-    function setType(string $type) : HtmlElement
+    function setType(string $type) : void
     {
         $this->type = $type;
-        return $this;
     }
 
     /**
@@ -240,12 +242,11 @@ class HtmlElement
      *
      * @param HtmlElement $parent Parent class HtmlElement
      *
-     * @return HtmlElement Returns the current class instance
+     * @return void
      */
-    function setParent(HtmlElement $parent) : HtmlElement
+    function setParent(HtmlElement $parent) : void
     {
         $this->parent = $parent;
-        return $this;
     }
 
     /**
@@ -264,12 +265,11 @@ class HtmlElement
      *
      * @param int $level Numeric nesting level
      *
-     * @return HtmlElement Returns the current class instance
+     * @return void
      */
-    function setLevel(int $level) : HtmlElement
+    function setLevel(int $level) : void
     {
         $this->level = (int) $level;
-        return $this;
     }
 
     /**
@@ -288,9 +288,9 @@ class HtmlElement
      * @param string $value string value
      * @param bool $escape Removes extra garbage from a string
      *
-     * @return HtmlElement Returns the current class instance
+     * @return void
      */
-	function html(string $result, bool $escape = true) : HtmlElement
+	function html(string $result, bool $escape = true) : void
 	{
         if($escape)
         {
@@ -298,7 +298,6 @@ class HtmlElement
         }
 
         $this->childrens = [$result];
-        return $this;
 	}
 
     /**
@@ -380,7 +379,8 @@ class HtmlElement
             return false;
         }
 
-        $key = array_search($oldChild, $this->childrens);
+        $childrens = $this->getChildrens();
+        $key = array_search($oldChild, $childrens);
 
         if($key !== false)
         {
@@ -401,9 +401,9 @@ class HtmlElement
      *
      * @param string $value Comment value
      *
-     * @return HtmlElement Returns the current class instance
+     * @return void
      */
-    function setCommentBefore(string $value) : HtmlElement
+    function setCommentBefore(string $value) : void
     {
         if($args = array_slice(func_get_args(), 1))
         {
@@ -411,7 +411,6 @@ class HtmlElement
         }
 
         array_push($this->comment_before, $value);
-        return $this;
     }
 
     /**
@@ -419,9 +418,9 @@ class HtmlElement
      *
      * @param string $value Comment value
      *
-     * @return HtmlElement Returns the current class instance
+     * @return void
      */
-    function setCommentAfter(string $value) : HtmlElement
+    function setCommentAfter(string $value) : void
     {
         if($args = array_slice(func_get_args(), 1))
         {
@@ -429,7 +428,6 @@ class HtmlElement
         }
 
         array_push($this->comment_after, $value);
-        return $this;
     }
 
     /**
@@ -461,44 +459,34 @@ class HtmlElement
             $this->addAttribute('style', $value);
         }
 
-        if($attr_value = implode(' ', $this->attrs))
+        if($value = $this->attrs->implodeValue(' '))
         {
-            $this->addRenderKey('attrs', ' ' . $attr_value);
+            $this->addRenderKey('attrs', ' ' . $value);
         }
 
-        preg_match_all('#\{([^body].*)\}#iU', $tmpl, $matches, 2);
+        $pattern = '#\{([^body].*)\}#iU';
+        preg_match_all($pattern, $tmpl, $matches, 2);
 
-        $map_matche = function (array $data)
+        foreach($matches as $matche)
         {
-            return strtolower($data[1]);
-        };
-
-        $data = array_map($map_matche, $matches);
-
-        foreach(array_unique($data) as $name)
-        {
-            $value = $this->getRenderKey($name);
-
-            $tmpl = str_replace(
-                '{' . $name . '}', $value, $tmpl
-            );
+            $value = $this->getRenderKey($matche[1]);
+            $tmpl = str_replace($matche[0], $value, $tmpl);
         }
 
         $indent = PHP_EOL . str_repeat("\t", $this->level);
 
         if($childrens = $this->getChildrens())
         {
-            $separator = '';
-
-            if(DEBUG && ($this->type !== 'textarea'))
+            if(DEBUG && !$this->hasType('textarea'))
             {
                 $body = $indent . "\t{body}" . $indent;
 
                 $tmpl = str_replace('{body}', $body, $tmpl);
-                $separator = $indent . "\t";
             }
 
+            $separator = (DEBUG ? $indent . "\t" : '');
             $body = implode($separator, $childrens);
+
             $tmpl = str_replace('{body}', $body, $tmpl);
         }
         else
@@ -518,8 +506,8 @@ class HtmlElement
 
         if(!empty($this->before))
 		{
-            $before = implode('', $this->before);
-            if(DEBUG) { $before .= $indent; }
+            $before = implode($indent, $this->before);
+            if(DEBUG) $before .= $indent;
 
 		    $tmpl = $before . $tmpl;
 		}
@@ -537,7 +525,7 @@ class HtmlElement
         if(!empty($this->after))
 		{
             if(DEBUG) { $tmpl .= $indent; }
-			$tmpl .= implode('', $this->after);
+			$tmpl .= implode($indent, $this->after);
 		}
 
         return (string) $tmpl;
@@ -601,7 +589,9 @@ class HtmlElement
      */
     private function escape(string $result) : string
     {
+        $result = mb_convert_encoding($result, 'UTF-8');
         $result = preg_replace('/[\r\n\t]+/', '', $result);
+
         return preg_replace('/\s+/u', ' ', $result);
     }
 }

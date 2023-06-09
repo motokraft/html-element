@@ -7,20 +7,24 @@
 
 trait ClassTrait
 {
-    function addClass(string $value)
+    function addClass(string $value) : void
     {
         if(!$attr = $this->getAttribute('class'))
         {
             $attr = $this->addAttribute('class');
         }
 
-        $value = preg_replace('/[\s]{2,}/', ' ', $value);
-
         $values = (array) explode(' ', $value);
-        $attr->setValues(array_diff($values, ['']));
+        $values = array_diff($values, ['']);
+
+        foreach($values as $value)
+        {
+            $value = trim($value, '\\/ ');
+            $attr->setValue($value);
+        }
     }
 
-    function removeClass(string $value)
+    function removeClass(string $value) : bool
     {
         if(!$attr = $this->getAttribute('class'))
         {
@@ -30,7 +34,7 @@ trait ClassTrait
         return $attr->removeValue($value);
     }
 
-    function hasClass(string $value)
+    function hasClass(string $value) : bool
     {
         if(!$attr = $this->getAttribute('class'))
         {
@@ -40,9 +44,14 @@ trait ClassTrait
         return $attr->hasValue($value);
     }
 
-    function replaceClass(string $old, string $new)
+    function replaceClass(string $old, string $new) : void
     {
         $this->removeClass($old);
         $this->addClass($new);
+    }
+
+    function conditionClass(bool $condition, mixed $value) : void
+    {
+        if($condition) $this->addClass($value);
     }
 }

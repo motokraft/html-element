@@ -22,17 +22,12 @@ trait AppendTrait
      * @param string $value string value
      * @param bool $escape Removes extra garbage from a string
      *
-     * @return HtmlElement Returns the current class instance
+     * @return void
      */
-    function append(string $result, bool $escape = true) : HtmlElement
+    function append(string $result, bool $escape = true) : void
 	{
-        if($escape)
-        {
-            $result = $this->escape($result);
-        }
-
+        if($escape) $result = $this->escape($result);
         array_push($this->childrens, $result);
-        return $this;
 	}
 
     /**

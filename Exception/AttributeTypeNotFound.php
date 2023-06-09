@@ -7,14 +7,14 @@
 
 class AttributeTypeNotFound extends \Exception
 {
-    private $element;
+    private \DOMElement $element;
 
     function __construct(\DOMElement $element, int $code = 404)
     {
         $this->element = $element;
 
-        $text = 'The type attribute for the %s is required!';
-        $message = sprintf($text, $element->tagName);
+        $message = $this->getMessageText();
+        $message = sprintf($message, $element->tagName);
 
         parent::__construct($message, $code);
     }
@@ -22,5 +22,10 @@ class AttributeTypeNotFound extends \Exception
     function getElement() : \DOMElement
     {
         return $this->element;
+    }
+
+    protected function getMessageText() : string
+    {
+        return 'The type attribute for the %s is required!';
     }
 }

@@ -13,12 +13,19 @@ class FileNotReadable extends \Exception
     {
         $this->filepath = $filepath;
 
-        $message = sprintf('File %s is not readable!', $filepath);
+        $message = $this->getMessageText();
+        $message = sprintf($message, $filepath);
+
         parent::__construct($message, $code);
     }
 
     function getFilepath() : string
     {
         return $this->filepath;
+    }
+
+    protected function getMessageText() : string
+    {
+        return 'File %s is not readable!';
     }
 }

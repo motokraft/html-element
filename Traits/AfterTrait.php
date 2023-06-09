@@ -29,17 +29,12 @@ trait AfterTrait
      * @param string $value string value
      * @param bool $escape Removes extra garbage from a string
      *
-     * @return HtmlElement Returns the current class instance
+     * @return void
      */
-	function after(string $result, bool $escape = true) : HtmlElement
+	function after(string $result, bool $escape = true) : void
 	{
-        if($escape)
-        {
-            $result = $this->escape($result);
-        }
-
+        if($escape) $result = $this->escape($result);
         array_push($this->after, $result);
-        return $this;
 	}
 
     /**

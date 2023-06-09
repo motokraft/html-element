@@ -19,16 +19,16 @@ use \Motokraft\HtmlElement\Styles\StandartStyle;
 use \Motokraft\HtmlElement\Exception\Type\TypeClassNotFound;
 use \Motokraft\HtmlElement\Exception\Type\TypeExtends;
 
-class HtmlHelper
+abstract class HtmlHelper
 {
     const SHORTCODE_DEFAULT_TAGNAME = 'div';
 
-    private static $attributes = [
+    private static array $attributes = [
         'class' => ClassAttribute::class,
         '_default' => StandartAttribute::class
     ];
 
-    private static $regex_schortcodes = [
+    private static array $regex_schortcodes = [
         '/{shortcode(.*)}/i' => '<shortcode$1 />',
         '/{(.*) shortcode="(.*?)"(.*?)}/i' => '<shortcode tagname="$1" type="$2"$3 />',
         '/{(.*) type="shortcode" name="(.*?)"(.*?)}/i' => '<shortcode tagname="$1" type="$2"$3 />'
@@ -51,8 +51,8 @@ class HtmlHelper
         '_default' => StandartStyle::class
     ];
 
-    private static $shortcodes = [];
-    private static $classes = [];
+    private static array $shortcodes = [];
+    private static array $classes = [];
 
     static function addTypeClass(string $name, string $class) : void
     {

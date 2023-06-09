@@ -22,17 +22,12 @@ trait PrependTrait
      * @param string $value string value
      * @param bool $escape Removes extra garbage from a string
      *
-     * @return HtmlElement Returns the current class instance
+     * @return void
      */
-	function prepend(string $result, bool $escape = true) : HtmlElement
+	function prepend(string $result, bool $escape = true) : void
 	{
-        if($escape)
-        {
-            $result = $this->escape($result);
-        }
-
+        if($escape) $result = $this->escape($result);
         array_unshift($this->childrens, $result);
-        return $this;
 	}
 
     /**

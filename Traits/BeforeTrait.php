@@ -29,17 +29,12 @@ trait BeforeTrait
      * @param string $value string value
      * @param bool $escape Removes extra garbage from a string
      *
-     * @return HtmlElement Returns the current class instance
+     * @return void
      */
-    function before(string $value, bool $escape = true) : HtmlElement
+    function before(string $value, bool $escape = true) : void
 	{
-        if($escape)
-        {
-            $value = $this->escape($value);
-        }
-
+        if($escape) $value = $this->escape($value);
         array_push($this->before, $value);
-        return $this;
 	}
 
     /**

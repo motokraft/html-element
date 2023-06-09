@@ -18,7 +18,7 @@ trait RenderKeyTrait
      *
      * @var array<string, mixed>
      */
-    private $render_keys = [];
+    private array $render_keys = [];
 
     /**
      * Adds a custom parameter to the output template
