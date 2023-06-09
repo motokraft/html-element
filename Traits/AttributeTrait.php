@@ -6,9 +6,12 @@
  */
 
 use \Motokraft\HtmlElement\HtmlHelper;
-use \Motokraft\HtmlElement\Attributes\BaseAttribute;
-use \Motokraft\HtmlElement\Exception\AttributeClassNotFound;
-use \Motokraft\HtmlElement\Exception\AttributeExtends;
+use \Motokraft\Object\Collection;
+use \Motokraft\HtmlElement\Attributes\AbstractAttribute;
+use \Motokraft\HtmlElement\Attributes\AttributeInterface;
+use \Motokraft\HtmlElement\Exception\Attribute\AttributeClassNotFound;
+use \Motokraft\HtmlElement\Exception\Attribute\AttributeImplement;
+use \Motokraft\HtmlElement\Exception\Attribute\AttributeExtends;
 
 /**
  *
@@ -21,9 +24,9 @@ trait AttributeTrait
     /**
      * Contains an array of attributes
      *
-     * @var array<string, Attributes\BaseAttribute>
+     * @var array<string, Attributes\AttributeInterface>
      */
-    private array $attrs = [];
+    private Collection $attrs;
 
     /**
      * Adds attributes in an array
@@ -32,39 +35,42 @@ trait AttributeTrait
      *
      * @return void
      */
-    function loadAttributes(array $attrs) : void
+    function loadAttributes(Collection|array $attrs) : void
     {
-        foreach($attrs as $name => $value)
+        if(!$attrs instanceof Collection)
         {
-            if(strtolower($name) === 'class')
-            {
-                $this->addClass($value);
-            }
-            else if(strtolower($name) === 'before')
-            {
-                $this->before($value);
-            }
-            else if(strtolower($name) === 'html')
-            {
-                $this->html($value);
-            }
-            else if(strtolower($name) === 'after')
-            {
-                $this->after($value);
-            }
-            else if(strtolower($name) === 'id')
-            {
-                $this->setId($value);
-            }
-            else if(strtolower($name) === 'level')
-            {
-                $this->setLevel((string) $value);
-            }
-            else
-            {
-                $this->addAttribute($name, $value);
-            }
+            $attrs = new Collection($attrs);
         }
+
+        $map = function (mixed $value, string $name)
+        {
+            switch(strtolower($name))
+            {
+                case 'class':
+                    $this->addClass($value);
+                break;
+                case 'before':
+                    $this->before($value);
+                break;
+                case 'html':
+                    $this->html($value);
+                break;
+                case 'after':
+                    $this->after($value);
+                break;
+                case 'id':
+                    $this->setId($value);
+                break;
+                case 'level':
+                    $this->setLevel($value);
+                break;
+                default:
+                    $this->addAttribute($name, $value);
+                break;
+            }
+        };
+
+        $attrs->each($map);
     }
 
     /**
@@ -73,9 +79,9 @@ trait AttributeTrait
      * @param string $name Attribute name
      * @param mixed $value Attribute value
      *
-     * @return BaseAttribute Single attribute class
+     * @return AttributeInterface Single attribute class
      */
-    function addAttribute(string $name, $value = null) : BaseAttribute
+    function addAttribute(string $name, mixed $value = null) : AttributeInterface
     {
         if(!$class = HtmlHelper::getAttribute($name))
         {
@@ -89,12 +95,17 @@ trait AttributeTrait
 
         $result = new $class($name, $value);
 
-        if(!$result instanceof BaseAttribute)
+        if(!$result instanceof AttributeInterface)
+        {
+            throw new AttributeImplement($result);
+        }
+
+        if(!$result instanceof AbstractAttribute)
         {
             throw new AttributeExtends($result);
         }
 
-        $this->attrs[$name] = $result;
+        $this->attrs->set($name, $result);
         return $result;
     }
 
@@ -103,17 +114,12 @@ trait AttributeTrait
      *
      * @param string $name Attribute name
      *
-     * @return BaseAttribute Single attribute class
+     * @return AttributeInterface Single attribute class
      * @return bool false Attribute not found
      */
-    function getAttribute(string $name) : bool|BaseAttribute
+    function getAttribute(string $name) : bool|AttributeInterface
     {
-        if(!$this->hasAttribute($name))
-        {
-            return false;
-        }
-
-        return $this->attrs[$name];
+        return $this->attrs->get($name, false);
     }
 
     /**
@@ -126,13 +132,7 @@ trait AttributeTrait
      */
     function removeAttribute(string $name) : bool
     {
-        if(!$this->hasAttribute($name))
-        {
-            return false;
-        }
-
-        unset($this->attrs[$name]);
-        return true;
+        return $this->attrs->remove($name);
     }
 
     /**
@@ -145,15 +145,15 @@ trait AttributeTrait
      */
     function hasAttribute(string $name) : bool
     {
-        return isset($this->attrs[$name]);
+        return $this->attrs->hasKey($name);
     }
 
     /**
      * Returns an array of attributes
      *
-     * @return array Array of attributes
+     * @return Collection of attributes
      */
-    function getAttributes() : array
+    function getAttributes() : Collection
     {
         return $this->attrs;
     }
@@ -164,9 +164,9 @@ trait AttributeTrait
      * @param string $name Attribute name
      * @param mixed $value Attribute value
      *
-     * @return BaseAttribute Single attribute class
+     * @return AttributeInterface Single attribute class
      */
-    function addAttrData(string $name, $value = null) : BaseAttribute
+    function addAttrData(string $name, mixed $value = null) : AttributeInterface
     {
         return $this->addAttribute('data-' . $name, $value);
     }
@@ -176,10 +176,10 @@ trait AttributeTrait
      *
      * @param string $name Attribute name
      *
-     * @return BaseAttribute Single attribute class
+     * @return AttributeInterface Single attribute class
      * @return bool false Attribute not found
      */
-    function getAttrData(string $name, $value = null) : bool|BaseAttribute
+    function getAttrData(string $name, mixed $value = null) : bool|AttributeInterface
     {
         return $this->getAttribute('data-' . $name, $value);
     }
@@ -213,17 +213,17 @@ trait AttributeTrait
     /**
      * Returns an array of data attributes
      *
-     * @return array Array of data attributes
+     * @return Collection of attributes
      */
-    function getAttrsData() : array
+    function getAttrsData() : Collection
     {
-        $filter_attr = function (BaseAttribute $attr)
+        $filter = function (AbstractAttribute $attr)
         {
             $name = (string) $attr->getName();
             return preg_match('/data-(.*)/m', $name);
         };
 
-        return array_filter($this->attrs, $filter_attr);
+        return $this->attrs->filter($filter);
     }
 
     /**
@@ -232,9 +232,9 @@ trait AttributeTrait
      * @param string $name Attribute name
      * @param mixed $value Attribute value
      *
-     * @return BaseAttribute Single attribute class
+     * @return AttributeInterface Single attribute class
      */
-    function addAttrAria(string $name, $value = null) : BaseAttribute
+    function addAttrAria(string $name, $value = null) : AttributeInterface
     {
         return $this->addAttribute('aria-' . $name, $value);
     }
@@ -244,10 +244,10 @@ trait AttributeTrait
      *
      * @param string $name Attribute name
      *
-     * @return BaseAttribute Single attribute class
+     * @return AttributeInterface Single attribute class
      * @return bool false Attribute not found
      */
-    function getAttrAria(string $name, $value = null) : bool|BaseAttribute
+    function getAttrAria(string $name, $value = null) : bool|AttributeInterface
     {
         return $this->getAttribute('aria-' . $name, $value);
     }
@@ -281,16 +281,16 @@ trait AttributeTrait
     /**
      * Returns an array of aria attributes
      *
-     * @return array Array of aria attributes
+     * @return Collection of attributes
      */
-    function getAttrsAria() : array
+    function getAttrsAria() : Collection
     {
-        $filter_attr = function (BaseAttribute $attr)
+        $filter = function (AbstractAttribute $attr)
         {
             $name = (string) $attr->getName();
             return preg_match('/aria-(.*)/m', $name);
         };
 
-        return array_filter($this->attrs, $filter_attr);
+        return $this->attrs->filter($filter);
     }
 }

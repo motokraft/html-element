@@ -5,6 +5,7 @@
  * @link https://github.com/motokraft/html-element
  */
 
+use \Motokraft\HtmlElement\Attributes\AbstractAttribute;
 use \Motokraft\HtmlElement\Exception\RenderItemNotFound;
 
 /**
@@ -210,9 +211,9 @@ class HtmlElement
      *
      * @param string $value Contains the value of the id attribute
      *
-     * @return Attributes\BaseAttribute Attribute class
+     * @return AbstractAttribute Attribute class
      */
-    function setId(string $value) : Attributes\BaseAttribute
+    function setId(string $value) : AbstractAttribute
     {
         return $this->addAttribute('id', $value);
     }
@@ -220,10 +221,10 @@ class HtmlElement
     /**
      * Returns the class of the id attribute
      *
-     * @return Attributes\BaseAttribute Attribute class
+     * @return AbstractAttribute Attribute class
      * @return bool false Attribute not found
      */
-    function getId() : bool|Attributes\BaseAttribute
+    function getId() : bool|AbstractAttribute
     {
         if(!$this->hasAttribute('id'))
         {

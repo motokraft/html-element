@@ -5,48 +5,63 @@
  * @link https://github.com/motokraft/html-element
  */
 
-class ClassAttribute extends BaseAttribute
+class ClassAttribute extends AbstractAttribute
 {
-    protected $name;
-    protected $value = [];
+    private array $value = [];
 
-    function setValues(array $values)
+    function __construct(string $name, mixed $value)
     {
-        $this->value = array_merge($this->value, $values);
-    }
+        parent::__construct($name);
 
-    function setValue($value)
-    {
-        if(!in_array($value, $this->value))
+        if(isset($value))
         {
-            array_push($this->value, $value);
-            return true;
+            $this->setValue($value);
         }
-
-        return false;
     }
 
-    function getValue()
+    function setValues(array $values) : void
+    {
+        foreach($values as $value)
+        {
+            if($this->hasValue($value))
+            {
+                continue;
+            }
+
+            $this->setValue($value);
+        }
+    }
+
+    function setValue(mixed $value) : void
+    {
+        array_push($this->value, $value);
+    }
+
+    function getValues() : array
+    {
+        return $this->value;
+    }
+
+    function getValue() : string
     {
         return implode(' ', $this->value);
     }
 
-    function removeValue(string $value)
+    function removeValue(mixed $value) : bool
     {
         if(!$this->hasValue($value))
         {
             return false;
         }
 
-        $key = array_search($value, $this->value);
-        echo $key . ' | ' . $value . "\n";
+        $data = (array) $this->getValues();
+        $index = array_search($value, $data);
 
-        unset($this->value[$key]);
-
+        unset($this->value[$index]);
         return true;
     }
 
-    function hasValue(string $value)
+    function hasValue(mixed $value) : bool
     {
         return in_array($value, $this->value);
     }

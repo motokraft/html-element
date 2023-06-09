@@ -13,7 +13,7 @@ use \Motokraft\HtmlElement\Exception\ShortCodeImplement;
 use \Motokraft\HtmlElement\Exception\ShortCodeExtends;
 use \Motokraft\HtmlElement\Exception\FileNotReadable;
 use \Motokraft\HtmlElement\Exception\FileContentEmpty;
-use \Motokraft\HtmlElement\Attributes\BaseAttribute;
+use \Motokraft\HtmlElement\Attributes\StandartAttribute;
 use \Motokraft\HtmlElement\Attributes\ClassAttribute;
 
 class HtmlHelper
@@ -22,7 +22,7 @@ class HtmlHelper
 
     private static $attributes = [
         'class' => ClassAttribute::class,
-        '_default' => BaseAttribute::class
+        '_default' => StandartAttribute::class
     ];
 
     private static $regex_schortcodes = [
