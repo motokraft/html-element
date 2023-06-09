@@ -19,11 +19,14 @@ trait RenderTrait
      */
     protected static $render = [
         'meta' => '<{type}{attrs}>',
+        'base' => '<{type}{attrs}>',
         'title' => '<{type}>{body}</{type}>',
         'link' => '<{type}{attrs}>',
         'input' => '<{type}{attrs}>',
         'hr' => '<{type}{attrs}>',
         'img' => '<{type}{attrs}>',
+        'embed' => '<{type}{attrs}>',
+        'br' => '<{type}{attrs}>',
         'shortcode' => '<{type}{attrs} />',
         '_default' => '<{type}{attrs}>{body}</{type}>'
     ];
