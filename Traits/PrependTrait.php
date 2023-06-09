@@ -6,6 +6,7 @@
  */
 
 use \Motokraft\HtmlElement\HtmlElement;
+use \Motokraft\HtmlElement\HtmlHelper;
 
 /**
  *
@@ -60,6 +61,7 @@ trait PrependTrait
      */
     function prependCreateHtml(string $type, array $attrs = []) : HtmlElement
 	{
-        return $this->prependHtml(new HtmlElement($type, $attrs));
+        $result = HtmlHelper::loadTypeClass($type, $attrs);
+        return $this->prependHtml($result);
 	}
 }

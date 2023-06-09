@@ -6,6 +6,7 @@
  */
 
 use \Motokraft\HtmlElement\HtmlElement;
+use \Motokraft\HtmlElement\HtmlHelper;
 
 /**
  *
@@ -65,9 +66,9 @@ trait AfterTrait
      *
      * @return HtmlElement Returns the created instance of the HtmlElement class
      */
-    function afterCreateHtml(string $type, array $attrs = [])
+    function afterCreateHtml(string $type, array $attrs = []) : HtmlElement
 	{
-        $result = new HtmlElement($type, $attrs);
+        $result = HtmlHelper::loadTypeClass($type, $attrs);
         return $this->afterHtml($result);
 	}
 }

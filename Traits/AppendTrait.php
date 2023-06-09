@@ -6,6 +6,7 @@
  */
 
 use \Motokraft\HtmlElement\HtmlElement;
+use \Motokraft\HtmlElement\HtmlHelper;
 
 /**
  *
@@ -60,6 +61,7 @@ trait AppendTrait
      */
     function appendCreateHtml(string $type, array $attrs = []) : HtmlElement
 	{
-        return $this->appendHtml(new HtmlElement($type, $attrs));
+        $result = HtmlHelper::loadTypeClass($type, $attrs);
+        return $this->appendHtml($result);
 	}
 }

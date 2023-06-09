@@ -15,6 +15,8 @@ use \Motokraft\HtmlElement\Exception\FileNotReadable;
 use \Motokraft\HtmlElement\Exception\FileContentEmpty;
 use \Motokraft\HtmlElement\Attributes\StandartAttribute;
 use \Motokraft\HtmlElement\Attributes\ClassAttribute;
+use \Motokraft\HtmlElement\Exception\Type\TypeClassNotFound;
+use \Motokraft\HtmlElement\Exception\Type\TypeExtends;
 
 class HtmlHelper
 {
@@ -31,9 +33,80 @@ class HtmlHelper
         '/{(.*) type="shortcode" name="(.*?)"(.*?)}/i' => '<shortcode tagname="$1" type="$2"$3 />'
     ];
 
+    private static array $types = [
+        'base' => Types\HtmlBaseElement::class,
+        'head' => Types\HtmlHeadElement::class,
+        'link' => Types\HtmlLinkElement::class,
+        'meta' => Types\HtmlMetaElement::class,
+        'button' => Types\HtmlButtonElement::class,
+        'fieldset' => Types\HtmlFieldSetElement::class,
+        'embed' => Types\HtmlEmbedElement::class,
+        'form' => Types\HtmlFormElement::class,
+        'input' => Types\HtmlInputElement::class,
+        'img' => Types\HtmlImageElement::class
+    ];
+
     private static $styles = [];
     private static $shortcodes = [];
     private static $classes = [];
+
+    static function addTypeClass(string $name, string $class) : void
+    {
+        self::$types[$name] = $class;
+    }
+
+    static function getTypeClass(string $name) : bool|string
+    {
+        if(!self::hasTypeClass($name))
+        {
+            return false;
+        }
+
+        return self::$types[$name];
+    }
+
+    static function removeTypeClass(string $name) : bool
+    {
+        if(!self::hasTypeClass($name))
+        {
+            return false;
+        }
+
+        unset(self::$types[$name]);
+        return true;
+    }
+
+    static function hasTypeClass(string $name) : bool
+    {
+        return isset(self::$types[$name]);
+    }
+
+    static function getTypeClasses() : array
+    {
+        return self::$types;
+    }
+
+    static function loadTypeClass(string $type, array $attrs = []) : HtmlElement
+    {
+        if(!$class = self::getTypeClass($type))
+        {
+            return new HtmlElement($type, $attrs);
+        }
+
+        if(!class_exists($class))
+        {
+            throw new TypeClassNotFound($class);
+        }
+
+        $result = new $class($attrs);
+
+        if(!$result instanceof HtmlElement)
+        {
+            throw new TypeExtends($result);
+        }
+
+        return $result;
+    }
 
     static function addAttribute(string $name, string $class) : void
     {

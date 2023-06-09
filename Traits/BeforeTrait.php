@@ -6,6 +6,7 @@
  */
 
 use \Motokraft\HtmlElement\HtmlElement;
+use \Motokraft\HtmlElement\HtmlHelper;
 
 /**
  *
@@ -72,6 +73,7 @@ trait BeforeTrait
      */
     function beforeCreateHtml(string $type, array $attrs = []) : HtmlElement
 	{
-        return $this->beforeHtml(new HtmlElement($type, $attrs));
+        $result = HtmlHelper::loadTypeClass($type, $attrs);
+        return $this->beforeHtml($result);
 	}
 }
