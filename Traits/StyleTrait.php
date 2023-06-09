@@ -5,44 +5,54 @@
  * @link https://github.com/motokraft/html-element
  */
 
-use \Motokraft\HtmlElement\Styles\BaseStyle;
+use \Motokraft\HtmlElement\Styles\AbstractStyle;
+use \Motokraft\HtmlElement\Exception\Style\StyleClassNotFound;
+use \Motokraft\HtmlElement\Exception\Style\StyleExtends;
 use \Motokraft\HtmlElement\HtmlHelper;
+use \Motokraft\Object\Collection;
 
 trait StyleTrait
 {
     /**
-     * Contains array of styles
+     * Contains Collection of styles
      *
-     * @var array<string, Styles\BaseStyle>
+     * @var Collection<string, AbstractStyle>
      */
-    private array $styles = [];
+    private Collection $styles;
 
-    function addStyle(string $name) : BaseStyle
+    function addStyle(string $name, mixed $value = null) : AbstractStyle
     {
-        if(!$class = HtmlHelper::getStyle($name))
+        if(!$style = HtmlHelper::getStyle($name))
         {
-            $class = BaseStyle::class;
+            $style = HtmlHelper::getStyle('_default');
         }
 
-        $class = new \ReflectionClass($class);
+        if(!class_exists($style))
+        {
+            throw new StyleClassNotFound($style);
+        }
 
-        $args = array_slice(func_get_args(), 1);
-        $style = $class->newInstanceArgs($args);
+        $result = new $style($name);
 
-        $style->setName($name);
+        if(!$result instanceof AbstractStyle)
+        {
+            throw new StyleExtends($result);
+        }
 
-        $this->styles[$name] = $style;
-        return $style;
+        if($value) $result->setValue($value);
+        $this->styles->set($name, $result);
+
+        return $result;
     }
 
-    function getStyle(string $name) : bool|BaseStyle
+    function getStyle(string $name) : bool|AbstractStyle
     {
         if(!$this->hasStyle($name))
         {
             return false;
         }
 
-        return $this->styles[$name];
+        return $this->styles->get($name);
     }
 
     function removeStyle(string $name) : bool
@@ -52,16 +62,16 @@ trait StyleTrait
             return false;
         }
 
-        unset($this->styles[$name]);
+        $this->styles->remove($name);
         return true;
     }
 
     function hasStyle(string $name) : bool
     {
-        return isset($this->styles[$name]);
+        return $this->styles->hasKey($name);
     }
 
-    function getStyles() : array
+    function getStyles() : Collection
     {
         return $this->styles;
     }

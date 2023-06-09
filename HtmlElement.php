@@ -7,6 +7,7 @@
 
 use \Motokraft\HtmlElement\Attributes\AbstractAttribute;
 use \Motokraft\HtmlElement\Exception\RenderItemNotFound;
+use \Motokraft\Object\Collection;
 
 /**
  *
@@ -162,7 +163,7 @@ class HtmlElement
             throw new \Exception('Item type required!');
         }
 
-        $this->setType($type);
+        $this->styles = new Collection;
 
         if(!empty($attrs))
         {
@@ -455,9 +456,9 @@ class HtmlElement
             $this->addAttrData('level', $this->level);
         }
 
-        if($style_value = implode(' ', $this->styles))
+        if($value = $this->styles->implodeValue(' '))
         {
-            $this->addAttribute('style', $style_value);
+            $this->addAttribute('style', $value);
         }
 
         if($attr_value = implode(' ', $this->attrs))

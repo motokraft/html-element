@@ -15,6 +15,7 @@ use \Motokraft\HtmlElement\Exception\FileNotReadable;
 use \Motokraft\HtmlElement\Exception\FileContentEmpty;
 use \Motokraft\HtmlElement\Attributes\StandartAttribute;
 use \Motokraft\HtmlElement\Attributes\ClassAttribute;
+use \Motokraft\HtmlElement\Styles\StandartStyle;
 use \Motokraft\HtmlElement\Exception\Type\TypeClassNotFound;
 use \Motokraft\HtmlElement\Exception\Type\TypeExtends;
 
@@ -46,7 +47,10 @@ class HtmlHelper
         'img' => Types\HtmlImageElement::class
     ];
 
-    private static $styles = [];
+    private static array $styles = [
+        '_default' => StandartStyle::class
+    ];
+
     private static $shortcodes = [];
     private static $classes = [];
 
