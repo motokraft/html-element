@@ -5,12 +5,12 @@
  * @link https://github.com/motokraft/html-element
  */
 
-use \Motokraft\HtmlElement\ShortCode\ShortCodeInterface;
-use \Motokraft\HtmlElement\Exception\ShortCodeNotFound;
-use \Motokraft\HtmlElement\Exception\ShortCodeClassNotFound;
+use \Motokraft\HtmlElement\ShortCode\AbstractShortCode;
+use \Motokraft\HtmlElement\Exception\ShortCode\ShortCodeNotFound;
+use \Motokraft\HtmlElement\Exception\ShortCode\ShortCodeClassNotFound;
+use \Motokraft\HtmlElement\Exception\ShortCode\ShortCodeImplement;
+use \Motokraft\HtmlElement\Exception\ShortCode\ShortCodeExtends;
 use \Motokraft\HtmlElement\Exception\AttributeTypeNotFound;
-use \Motokraft\HtmlElement\Exception\ShortCodeImplement;
-use \Motokraft\HtmlElement\Exception\ShortCodeExtends;
 use \Motokraft\HtmlElement\Exception\FileNotReadable;
 use \Motokraft\HtmlElement\Exception\FileContentEmpty;
 use \Motokraft\HtmlElement\Attributes\StandartAttribute;
@@ -303,7 +303,7 @@ class HtmlHelper
     {
         $attrs = self::getAttributes($element);
 
-        if($result instanceof ShortCodeInterface
+        if($result instanceof AbstractShortCode
             && ($data = $attrs->getArrayCopy()))
         {
             $result->loadArray($data);
@@ -386,7 +386,7 @@ class HtmlHelper
     }
 
     private static function createShortCode(string $type,
-        string $tagname, HtmlElement $html) : ShortCodeInterface
+        string $tagname, HtmlElement $html) : AbstractShortCode
     {
         if(!$class = self::getShortCode($type))
         {
@@ -400,12 +400,7 @@ class HtmlHelper
 
         $result = new $class($tagname);
 
-        if(!$result instanceof ShortCodeInterface)
-        {
-            throw new ShortCodeImplement($result);
-        }
-
-        if(!$result instanceof HtmlElement)
+        if(!$result instanceof AbstractShortCode)
         {
             throw new ShortCodeExtends($result);
         }

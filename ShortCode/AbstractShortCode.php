@@ -8,7 +8,7 @@
 use \Motokraft\HtmlElement\HtmlElement;
 use \Motokraft\Object\Traits\ObjectTrait;
 
-class BaseShortCode extends HtmlElement implements ShortCodeInterface
+class AbstractShortCode extends HtmlElement
 {
     use ObjectTrait;
 }
