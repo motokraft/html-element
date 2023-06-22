@@ -67,10 +67,7 @@ trait SelectorTrait
 
         foreach($items as $key => $item)
         {
-            if($item !== $this)
-            {
-                continue;
-            }
+            if($item !== $this) continue;
 
             if(isset($items[($key - 1)]))
             {
@@ -102,10 +99,7 @@ trait SelectorTrait
 
         foreach($items as $key => $item)
         {
-            if($item !== $this)
-            {
-                continue;
-            }
+            if($item !== $this) continue;
 
             if(isset($items[($key + 1)]))
             {

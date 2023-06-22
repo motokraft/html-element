@@ -35,6 +35,7 @@ abstract class HtmlHelper
     ];
 
     private static array $types = [
+        'a' => Types\HtmlAnchorElement::class,
         'base' => Types\HtmlBaseElement::class,
         'head' => Types\HtmlHeadElement::class,
         'link' => Types\HtmlLinkElement::class,

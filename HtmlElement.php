@@ -301,6 +301,17 @@ class HtmlElement
 	}
 
     /**
+     * Returns the string representation of child elements
+     *
+     * @return string string representation of elements
+     */
+
+    function innerHtml() : string
+    {
+        return implode('', $this->childrens);
+    }
+
+    /**
      * Removes the passed HtmlElement class from the list of child elements
      *
      * @param HtmlElement $element The class to be removed
