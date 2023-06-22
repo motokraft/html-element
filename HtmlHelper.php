@@ -270,16 +270,19 @@ abstract class HtmlHelper
         $dom->loadHTML($source, LIBXML_HTML_NODEFDTD);
 
         $xpath = new \DOMXPath($dom);
-        $query = $xpath->query('body/*');
-
         $result = new HtmlCollection;
 
-        foreach($query as $item)
+        foreach($xpath->query('body/*') as $item)
         {
-            $el = $element->appendCreateHtml($item->tagName);
-            self::parseDOMElement($el, $item, $shortcode);
+            $child = self::createChildElement(
+                $item, $element, $shortcode
+            );
 
-            $result->append($el);
+            self::parseDOMElement(
+                $child, $item, $shortcode
+            );
+
+            $result->append($child);
         }
 
         return $result;
